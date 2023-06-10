@@ -27,8 +27,8 @@ class LandlordModelAdmin(admin.ModelAdmin):
     list_filter = [ 'created_at', 'updated_at']
     list_per_page = 25
 
-@admin.register(PropertyImage)
 class PropertyImageModelAdmin(admin.StackedInline):
+    model = PropertyImage
     list_display = ['property', 'image', 'created_at', 'updated_at']
     list_filter = ['created_at', 'updated_at']
 

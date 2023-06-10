@@ -14,6 +14,7 @@ from .models import (
 
 
 class StudentSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.id')
     class Meta:
         model = Student
         fields = [
@@ -23,7 +24,8 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             'institution',
             'bookings',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'owner'
         ]
         extra_kwargs = {'bookings': {'read_only': True}}
     
@@ -89,7 +91,7 @@ class InstitutionSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookingSerializer(serializers.HyperlinkedModelSerializer):
 
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.id')
 
     class Meta:
         model = Booking
@@ -117,7 +119,7 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
 
 class PropertySerializer(serializers.HyperlinkedModelSerializer):
 
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.id')
 
     class Meta:
         model = Property
@@ -221,7 +223,7 @@ class CitySerializer(serializers.HyperlinkedModelSerializer):
     
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.id')
     
     class Meta:
         model = Review
