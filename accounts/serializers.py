@@ -59,8 +59,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            is_student=validated_data['is_student'],
-            is_landlord=validated_data['is_landlord']
+            is_student=validated_data.get('is_student') or False, 
+            is_landlord=validated_data.get('is_landlord') or False,
             )
         user.set_password(validated_data['password'])
         user.save()

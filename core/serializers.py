@@ -96,7 +96,7 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'id', 'url', 'student', 'property', 'created_at', 'updated_at'
+            'id', 'url', 'student', 'owner', 'property', 'room_type', 'created_at', 'updated_at'
         ]
 
     def create(self, validated_data):
@@ -127,6 +127,7 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'id',
             'landlord',
+            'owner',
             'name',
             'images',
             'description',
@@ -227,7 +228,7 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model = Review
-        fields = ['id', 'url', 'property', 'student', 'rating', 'comment', 'created_at', 'updated_at']
+        fields = ['id', 'url', 'property', 'student', 'owner', 'rating', 'comment', 'created_at', 'updated_at']
     
     def create(self, validated_data):
         property = validated_data.pop('property')

@@ -55,6 +55,7 @@ class PropertyList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        serializer.save(images=self.request.FILES)
 
 
 class PropertyDetail(generics.RetrieveUpdateDestroyAPIView):

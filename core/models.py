@@ -130,6 +130,7 @@ class Booking(models.Model):
     student = models.OneToOneField(Student, related_name='bookings', on_delete=models.CASCADE, null=False, blank=False)
     owner = models.ForeignKey('accounts.User', on_delete=models.CASCADE, null=True)
     property = models.ForeignKey(Property, on_delete=models.CASCADE, null=False, blank=False)
+    room_type = models.CharField(max_length=255, default='shared', null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
