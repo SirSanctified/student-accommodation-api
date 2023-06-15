@@ -1,6 +1,7 @@
 # student-accommodation
 
 Many university students who are not living on campus have trouble finding accommodation. In some cities there are 'boarding houses' where students live. This project is dedicated to help students find the boarding houses that suit their needs.
+[Demo Vedio](https://youtu.be/0e7S1W_JDuA)
 
 ## Features
 
