@@ -6,8 +6,6 @@ A simple student accommadation system that allows students to book rooms and pay
 
 To get started with the project, you will need to have the following installed on your machine:
 
-- Python 3.9+
-- Node.js 18.0+
 - Docker 25.0+
 - Docker Desktop (Optional)
 

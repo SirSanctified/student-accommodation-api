@@ -16,8 +16,21 @@ services:
       - ./backend/.env
     depends_on:
       - db
-    command: chown -R 1000:1000 
-  
+    command: chown -R 1000:1000
+
+  client:
+    container_name: client
+    image: sirsanctified/client:latest
+    build: ./client
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./client/.env
+    networks:
+      - student-accommodation
+    depends_on:
+      - server
+
   db:
     container_name: db
     image: postgres
