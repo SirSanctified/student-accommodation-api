@@ -16,7 +16,14 @@ services:
       - ./backend/.env
     depends_on:
       - db
-    command: chown -R 1000:1000
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          ignore:
+            - venv/
+        - action: rebuild
+          path: ./backend/requirement.txt
 
   client:
     container_name: client
@@ -30,6 +37,21 @@ services:
       - student-accommodation
     depends_on:
       - server
+    develop:
+      watch:
+        - action: sync
+          path: ./client
+          target: /src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./client
+          target: /public
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./client/package.json
+        
 
   db:
     container_name: db
