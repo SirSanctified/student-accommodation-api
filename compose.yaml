@@ -78,4 +78,4 @@ services:
       - db
 
 volumes:
-  db: 
+  db:

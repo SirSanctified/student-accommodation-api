@@ -1,16 +1,12 @@
 FROM node
 
-RUN useradd -ms /bin/sh -u 1001 app
-
-USER app
-
 WORKDIR /app
 
-COPY --chown=app:app package.*json .
+COPY package.*json .
 
 RUN npm install
 
-COPY --chown=app:app . .
+COPY . .
 
 EXPOSE 3000
 
