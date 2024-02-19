@@ -39,18 +39,15 @@ services:
       - server
     develop:
       watch:
-        - action: sync
-          path: ./client
-          target: /src
+        - path: ./client
+          action: sync
+          target: /app
           ignore:
             - node_modules/
-        - action: sync
-          path: ./client
-          target: /public
-          ignore:
-            - node_modules/
-        - action: rebuild
-          path: ./client/package.json
+        - path: ./client/package.json
+          action: rebuild
+        - path: ./client/package-lock.json
+          action: sync
         
 
   db:
