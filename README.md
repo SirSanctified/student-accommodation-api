@@ -22,21 +22,19 @@ Make sure you have the environment variables set in a `.env.local` file in the `
 To run the project, you will need to run the following commands:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
-
-If you encounter permission issues with the above command in your `server` container, you can run the following command:
-
-```bash
-sudo chmod -R 777  ../backend/db/
-```
-
-This will give the `server` container the necessary permissions to access the database.
 
 After running the above command, you can run the following command to set the django superuser:
 
 ```bash
 docker exec -it server python manage.py createsuperuser
+```
+
+If you want to watch for changes while you make modifications to the code, you can run the following command in a separate terminal window:
+
+```bash
+docker compose watch
 ```
 
 You can then access the backend at `http://localhost:8000` and the frontend at `http://localhost:3000`.
