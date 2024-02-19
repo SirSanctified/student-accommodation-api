@@ -1,0 +1,46 @@
+version: '3.9'
+networks:
+  student-accommodation:
+    driver: bridge
+
+services:
+  server:
+    container_name: server
+    image: sirsanctified/server:latest
+    build: ./backend
+    ports:
+      - "8000:8000"
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    command: chown -R 1000:1000 
+  
+  db:
+    container_name: db
+    image: postgres
+    ports:
+      - "6543:5432"
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/db:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+
+volumes:
+  db: {}
