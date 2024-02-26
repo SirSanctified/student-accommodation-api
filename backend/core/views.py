@@ -62,7 +62,7 @@ class CityViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = City.objects.all()  # pylint: disable=no-member
     serializer_class = CitySerializer
 
@@ -72,7 +72,7 @@ class InstitutionViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Institution.objects.all()  # pylint: disable=no-member
     serializer_class = InstitutionSerializer
 
@@ -82,7 +82,7 @@ class AmenityViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Amenity.objects.all()  # pylint: disable=no-member
     serializer_class = AmenitySerializer
 
