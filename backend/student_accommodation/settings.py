@@ -127,15 +127,21 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.BasicAuthentication",
         # 'rest_framework.authentication.SessionAuthentication',
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.CustomAuthentication",
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 15,
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
-    "ROTATE_REFRESH_TOKENS": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "BLACKLIST_AFTER_ROTATION": True,
+    # custom
+    "AUTH_COOKIE": "access_token",  # cookie name
+    "AUTH_COOKIE_DOMAIN": None,  # specifies domain for which the cookie will be sent
+    "AUTH_COOKIE_SECURE": False,  # restricts the transmission of the cookie to only occur over secure (HTTPS) connections.
+    "AUTH_COOKIE_HTTP_ONLY": True,  # prevents client-side js from accessing the cookie
+    "AUTH_COOKIE_PATH": "/",  # URL path where cookie will be sent
+    "AUTH_COOKIE_SAMESITE": "Lax",  # specifies whether the cookie should be sent in cross site requests
 }
