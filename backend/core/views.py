@@ -52,7 +52,7 @@ class PropertyViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     queryset = Property.objects.all()  # pylint: disable=no-member
     serializer_class = PropertySerializer
 
