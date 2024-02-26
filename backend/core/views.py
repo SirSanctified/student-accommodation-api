@@ -1,22 +1,24 @@
-from rest_framework import generics, permissions
-# from rest_framework.authentication import TokenAuthentication
+"""
+This module contains the viewsets for the core app.
+"""
+
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from core.permissions import IsOwnerOrReadOnly
-from . serializers import (
+from .serializers import (
     StudentSerializer,
     LandlordSerializer,
     PropertySerializer,
-    PropertyImageSerializer,
     AmenitySerializer,
     CitySerializer,
     ReviewSerializer,
     BookingSerializer,
-    InstitutionSerializer
+    InstitutionSerializer,
 )
-from . models import (
+from .models import (
     Student,
     Landlord,
     Property,
-    PropertyImage,
     City,
     Institution,
     Amenity,
@@ -25,116 +27,81 @@ from . models import (
 )
 
 
-class StudentList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Student.objects.all()
+class StudentViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Student.objects.all()  # pylint: disable=no-member
     serializer_class = StudentSerializer
 
 
-class StudentDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
-    
+class LandlordViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-class LandloardList(generics.ListCreateAPIView):
-    queryset = Landlord.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Landlord.objects.all()  # pylint: disable=no-member
     serializer_class = LandlordSerializer
 
 
-class LandlordDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Landlord.objects.all()
-    serializer_class = LandlordSerializer
-    
+class PropertyViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-class PropertyList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Property.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Property.objects.all()  # pylint: disable=no-member
     serializer_class = PropertySerializer
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-        serializer.save(images=self.request.FILES)
 
+class CityViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-class PropertyDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = Property.objects.all()
-    serializer_class = PropertySerializer
-
-class PropertyImageList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = PropertyImage.objects.all()
-    serializer_class = PropertyImageSerializer
-
-class PropertyImageDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = PropertyImage.objects.all()
-    serializer_class = PropertyImageSerializer
-
-   
-class CityList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = City.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = City.objects.all()  # pylint: disable=no-member
     serializer_class = CitySerializer
 
 
-class CityDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
-    
+class InstitutionViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-class InstitutionList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Institution.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Institution.objects.all()  # pylint: disable=no-member
     serializer_class = InstitutionSerializer
 
 
-class InstitutionDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = Institution.objects.all()
-    serializer_class = InstitutionSerializer
+class AmenityViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-
-class ReviewList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-
-
-class AmenityList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Amenity.objects.all()
-    serializer_class = AmenitySerializer
-    
-
-class AmenityDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = Amenity.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Amenity.objects.all()  # pylint: disable=no-member
     serializer_class = AmenitySerializer
 
 
-class BookingList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
+class ReviewViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = Review.objects.all()  # pylint: disable=no-member
+    serializer_class = ReviewSerializer
 
 
-class BookingDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
-    queryset = Booking.objects.all()
+class BookingViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Booking.objects.all()  # pylint: disable=no-member
     serializer_class = BookingSerializer
