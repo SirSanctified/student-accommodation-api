@@ -18,12 +18,29 @@ services:
       - db
     develop:
       watch:
-        - action: sync
-          path: ./backend
+        - path: ./backend
+          action: sync
+          target: /accounts
           ignore:
             - venv/
-        - action: rebuild
-          path: ./backend/requirement.txt
+        - path: ./backend
+          action: rebuild
+          target: /accounts
+          ignore:
+            - venv/
+        - path: ./backend
+          action: rebuild
+          target: /core
+          ignore:
+            - venv/
+        - path: ./backend
+          action: rebuild
+          target: /student_accommodation
+          ignore:
+            - venv/
+        - path: ./backend/requirement.txt
+          action: rebuild
+        
 
   client:
     container_name: client
