@@ -14,10 +14,10 @@ const Footer = () => {
               alt="Roomio logo"
               width={250}
               height={200}
-              className="mx-auto block"
+              className="block sm:mx-auto"
             />
           </Link>
-          <p className="text-center text-white sm:max-w-sm">
+          <p className="text-start text-white sm:max-w-sm sm:text-center">
             Your home for all things roomy. Find your next off-campus housing
             with Roomio.
           </p>
