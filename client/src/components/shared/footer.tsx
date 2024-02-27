@@ -90,6 +90,35 @@ const Footer = () => {
               </Link>
             </li>
           </ul>
+          {/* download app */}
+          <div className="flex w-full gap-4">
+            <div className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-white px-1">
+              <Image
+                src="/apple.svg"
+                alt="App Store logo"
+                width={40}
+                height={40}
+                className="rounded-lg"
+              />
+              <h3 className="text-sm text-black">
+                Download on the <br />
+                <span className="text-lg font-bold">App Store </span>
+              </h3>
+            </div>
+            <div className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-white px-1">
+              <Image
+                src="/playstore.svg"
+                alt="Google Play logo"
+                width={40}
+                height={40}
+                className="rounded-lg"
+              />
+              <h3 className="text-sm text-black">
+                Get it on <br />
+                <span className="text-lg font-bold">Google Play</span>
+              </h3>
+            </div>
+          </div>
         </div>
       </div>
       <Separator className="my-8 bg-blue-300" />
