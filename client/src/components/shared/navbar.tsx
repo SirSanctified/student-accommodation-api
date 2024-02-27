@@ -19,7 +19,7 @@ import { Separator } from "../ui/separator";
 const Navbar = () => {
   const pathname = usePathname();
   return (
-    <header className="fixed top-0 mx-auto w-full max-w-7xl border-b-2 border-indigo-200 bg-gray-100 shadow">
+    <header className="fixed top-0 z-50 mx-auto w-full max-w-7xl border-b-2 border-indigo-300 bg-gray-100/90 shadow">
       <nav className="flex items-center justify-between p-4">
         <Link href="/">
           <Image
