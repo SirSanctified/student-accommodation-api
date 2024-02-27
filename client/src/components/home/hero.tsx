@@ -1,7 +1,7 @@
 const Hero = () => {
   return (
     <section className="w-full pt-32">
-      <div className="relative mx-auto h-[80vh] w-[95%] rounded-lg bg-[url('/hero1.jpg')] bg-cover bg-center bg-no-repeat">
+      <div className="relative mx-auto h-[80vh] w-[95%] rounded-lg bg-[url('/hero.jpg')] bg-cover bg-center bg-no-repeat">
         <div className="absolute inset-0 flex h-full w-full flex-col items-start justify-center rounded-lg bg-black bg-opacity-50 px-4 sm:px-8 md:px-16">
           <h1 className="flex flex-col gap-4 text-4xl font-bold text-white">
             The Number One <br />
