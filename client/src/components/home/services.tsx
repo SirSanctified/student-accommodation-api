@@ -1,4 +1,4 @@
-import { services } from "@/constants";
+import { services } from "@/constants/index";
 import ServiceCard from "./serviceCard";
 import { Button } from "../ui/button";
 import Link from "next/link";

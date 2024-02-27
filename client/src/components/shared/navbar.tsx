@@ -1,6 +1,6 @@
 "use client";
 
-import { navLinks } from "@/constants";
+import { navLinks } from "@/constants/index";
 import { LucideMenu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
