@@ -19,17 +19,17 @@ services:
     develop:
       watch:
         - path: ./backend
-          action: sync
+          action: rebuild
           target: /accounts
           ignore:
             - venv/
         - path: ./backend
-          action: sync
+          action: rebuild
           target: /core
           ignore:
             - venv/
         - path: ./backend
-          action: sync
+          action: rebuild
           target: /student_accommodation
           ignore:
             - venv/

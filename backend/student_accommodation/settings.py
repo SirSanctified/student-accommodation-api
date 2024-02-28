@@ -16,7 +16,16 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "server",
+    "server:8000",
+    "localhost:8000",
+    "127.0.0.1:8000",
+    "server:3000",
+    "localhost:3000",
+    "127.0.0.1:3000",
+]
 
 
 # Application definition
@@ -31,6 +40,7 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
     "rest_framework",
+    "corsheaders",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
 ]
@@ -38,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -145,3 +156,6 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_PATH": "/",  # URL path where cookie will be sent
     "AUTH_COOKIE_SAMESITE": "Lax",  # specifies whether the cookie should be sent in cross site requests
 }
+
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True

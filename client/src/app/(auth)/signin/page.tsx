@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { login } from "@/lib/actions/auth.actions";
-import { useAuthStore } from "@/store/store";
+import { User, useAuthStore } from "@/store/store";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import type { FormEvent } from "react";
@@ -23,11 +24,18 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     try {
-      ("use server");
-      user = await login({
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `http://localhost:8000/api/auth/login/`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          
+      );
+      user = response.data as User;
+      loginUser(user);
 
       toast.success("Successfully signed in");
     } catch (error) {
@@ -36,7 +44,6 @@ export default function SignInPage() {
       );
       return;
     }
-    loginUser(user);
     window.location.href = "/";
   }
 
