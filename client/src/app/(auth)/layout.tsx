@@ -1,7 +1,5 @@
-import Footer from "@/components/shared/footer";
-import Navbar from "@/components/shared/navbar";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
-
 import { Lato } from "next/font/google";
 
 const lato = Lato({
@@ -23,11 +21,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${lato.className}`}>
-        <div className="mx-auto min-h-screen max-w-7xl">
-          <Navbar />
+      <body
+        className={`${lato.className} flex min-h-screen items-center justify-center`}
+      >
+        <div className="mx-auto min-h-[75vh] w-full max-w-xl rounded-xl shadow-xl shadow-indigo-500">
+          <Toaster position="top-right" />
           {children}
-          <Footer />
         </div>
       </body>
     </html>
