@@ -2,8 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login } from "@/lib/actions/auth.actions";
-import { User, useAuthStore } from "@/store/store";
+import { type User, useAuthStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
