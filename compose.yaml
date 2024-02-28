@@ -24,17 +24,12 @@ services:
           ignore:
             - venv/
         - path: ./backend
-          action: rebuild
-          target: /accounts
-          ignore:
-            - venv/
-        - path: ./backend
-          action: rebuild
+          action: sync
           target: /core
           ignore:
             - venv/
         - path: ./backend
-          action: rebuild
+          action: sync
           target: /student_accommodation
           ignore:
             - venv/
