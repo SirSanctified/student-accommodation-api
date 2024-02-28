@@ -1,4 +1,5 @@
 import About from "@/components/home/about";
+import CTA from "@/components/home/cta";
 import Hero from "@/components/home/hero";
 import Reasons from "@/components/home/reasons";
 import Services from "@/components/home/services";
@@ -10,6 +11,7 @@ export default function HomePage() {
       <About />
       <Services />
       <Reasons />
+      <CTA />
     </main>
   );
 }
