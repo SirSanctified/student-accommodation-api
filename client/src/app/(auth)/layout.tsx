@@ -24,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${lato.className} flex min-h-screen items-center justify-center`}
       >
-        <div className="mx-auto min-h-[75vh] w-full max-w-xl rounded-xl shadow-xl shadow-indigo-500">
+        <div className="mx-auto my-auto flex min-h-[75vh] w-full max-w-xl flex-col items-center justify-center rounded-xl shadow-md shadow-indigo-500">
           <Toaster position="top-right" />
           {children}
         </div>
