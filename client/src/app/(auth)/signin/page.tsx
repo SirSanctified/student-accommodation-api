@@ -28,6 +28,7 @@ export default function SignInPage() {
         email,
         password,
       });
+
       toast.success("Successfully signed in");
     } catch (error) {
       toast.error(

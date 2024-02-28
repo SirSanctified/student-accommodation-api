@@ -15,9 +15,12 @@ import {
 } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { useAuthStore } from "@/store/store";
+import { UserAvatar } from "./userAvatar";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const { isAuthenticated, user } = useAuthStore();
   return (
     <header className="fixed top-0 z-50 mx-auto w-full max-w-7xl border-b-2 border-indigo-300 bg-gray-100/90 shadow">
       <nav className="flex items-center justify-between p-4">
@@ -40,14 +43,18 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <div className="flex items-center md:ml-4">
-            <Link
-              href={"/signup"}
-              className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
-            >
-              Sign Up
-            </Link>
-          </div>
+          {isAuthenticated ? (
+            <UserAvatar user={user!} />
+          ) : (
+            <div className="flex items-center md:ml-4">
+              <Link
+                href={"/signin"}
+                className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
+              >
+                Sign in
+              </Link>
+            </div>
+          )}
         </div>
         {/* Mobile */}
         <div className="flex md:hidden">
@@ -83,16 +90,20 @@ const Navbar = () => {
                   </SheetClose>
                 ))}
               </div>
-              <div className="mt-[60%] flex items-center">
-                <SheetClose asChild>
-                  <Link
-                    href={"/signup"}
-                    className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
-                  >
-                    Sign Up
-                  </Link>
-                </SheetClose>
-              </div>
+              {isAuthenticated ? (
+                <UserAvatar user={user!} />
+              ) : (
+                <div className="mt-[60%] flex items-center">
+                  <SheetClose asChild>
+                    <Link
+                      href={"/signin"}
+                      className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
+                    >
+                      Sign In
+                    </Link>
+                  </SheetClose>
+                </div>
+              )}
             </SheetContent>
           </Sheet>
         </div>

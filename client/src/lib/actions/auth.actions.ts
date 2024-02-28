@@ -8,6 +8,9 @@ export const login = async (user: LoginType): Promise<User> => {
     const response = await axios.post(
       `http://server:8000/api/auth/login/`,
       user,
+      {
+        withCredentials: true,
+      },
     );
     return response.data as User;
   } catch (error) {
@@ -24,6 +27,9 @@ export const register = async (user: RegisterType): Promise<User> => {
     const response = await axios.post(
       `http://server:8000/api/auth/register/`,
       user,
+      {
+        withCredentials: true,
+      },
     );
     return response.data as User;
   } catch (error) {
@@ -37,7 +43,7 @@ export const register = async (user: RegisterType): Promise<User> => {
 
 export const logout = async (): Promise<void> => {
   try {
-    await axios.post("/api/auth/logout");
+    await axios.post("/api/auth/logout", { withCredentials: true });
   } catch (error) {
     throw new Error(
       (error as AxiosError)?.response?.data
