@@ -32,7 +32,7 @@ export default function SignInPage() {
         },
         {
           withCredentials: true,
-          
+        },
       );
       user = response.data as User;
       loginUser(user);

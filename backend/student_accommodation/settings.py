@@ -164,3 +164,4 @@ CORS_ALLOWED_ORIGINS = [
     "http://server:8000",
     "http://client:3000",
 ]
+CORS_ALLOW_CREDENTIALS = True
