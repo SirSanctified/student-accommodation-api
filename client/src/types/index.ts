@@ -23,4 +23,5 @@ export type ComboboxOption = {
 export type InstitutionAndCityResponse = {
   name: string;
   id: number;
+  url?: string;
 };
