@@ -22,26 +22,32 @@ import { type ReactNode, useState } from "react";
 export function ComboBoxResponsive({
   options,
   commandEmpty,
+  selectedOption,
+  setSelectedOption,
+  placeholder,
 }: {
   options: ComboboxOption[];
   commandEmpty?: ReactNode;
+  selectedOption: ComboboxOption | null;
+  placeholder: string;
+  setSelectedOption: (option: ComboboxOption | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const { isDesktop } = useMediaQuery();
-
-  const [selectedOption, setSelectedOption] = useState<ComboboxOption | null>(
-    null,
-  );
 
   if (isDesktop) {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
-            {selectedOption ? <>{selectedOption.label}</> : <>+ Set Value</>}
+          <Button variant="outline" className="w-full justify-start">
+            {selectedOption ? (
+              <>{selectedOption.label}</>
+            ) : (
+              <>+ {placeholder}</>
+            )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+        <PopoverContent className="w-full p-0" align="start">
           <OptionList
             setOpen={setOpen}
             setSelectedOption={setSelectedOption}
@@ -56,8 +62,8 @@ export function ComboBoxResponsive({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {selectedOption ? <>{selectedOption.label}</> : <>+ Set Value</>}
+        <Button variant="outline" className="w-full justify-start">
+          {selectedOption ? <>{selectedOption.label}</> : <>+ {placeholder}</>}
         </Button>
       </DrawerTrigger>
       <DrawerContent>

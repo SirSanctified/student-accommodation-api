@@ -10,15 +10,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ComboboxOption } from "@/types";
+import type { ComboboxOption, InstitutionAndCityResponse } from "@/types";
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
-
-interface CityResponse {
-  name: string;
-  id: number;
-}
 
 export function AddCity({
   setSelectedOption,
@@ -29,7 +24,7 @@ export function AddCity({
   async function onAddSuccess() {
     if (city) {
       try {
-        const response = await axios.post<CityResponse>(
+        const response = await axios.post<InstitutionAndCityResponse>(
           "http://server:8000/api/cities/",
           {
             name: city,

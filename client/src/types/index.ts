@@ -19,3 +19,8 @@ export type ComboboxOption = {
   value: string;
   label: string;
 };
+
+export type InstitutionAndCityResponse = {
+  name: string;
+  id: number;
+};

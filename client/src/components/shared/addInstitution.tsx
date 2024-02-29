@@ -10,15 +10,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ComboboxOption } from "@/types";
+import type { ComboboxOption, InstitutionAndCityResponse } from "@/types";
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
-
-interface InstitutionResponse {
-  name: string;
-  id: number;
-}
 
 export function AddInstitution({
   setSelectedOption,
@@ -29,7 +24,7 @@ export function AddInstitution({
   async function onAddSuccess() {
     if (institution) {
       try {
-        const response = await axios.post<InstitutionResponse>(
+        const response = await axios.post<InstitutionAndCityResponse>(
           "http://server:8000/api/institutions/",
           {
             name: institution,
@@ -57,10 +52,12 @@ export function AddInstitution({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Add Institution</AlertDialogTitle>
+          <AlertDialogTitle className="text-indigo-950">
+            Add Institution
+          </AlertDialogTitle>
           <Input
             placeholder="New Institution Name"
-            className="w-full"
+            className="w-full text-indigo-950"
             name="institution"
             value={institution}
             onChange={(e) => setInstitution(e.target.value)}
