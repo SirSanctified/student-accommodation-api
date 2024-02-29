@@ -15,7 +15,8 @@ import { useAuthStore } from "@/store/store";
 import type { ComboboxOption, InstitutionAndCityResponse } from "@/types";
 import axios from "axios";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const MyDetails = () => {
   const [cities, setCities] = useState<ComboboxOption[]>([]);
@@ -72,6 +73,47 @@ const MyDetails = () => {
   if (!isAuthenticated) {
     window.location.href = "/signin";
   }
+  async function submitForm(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = {
+      city: selectedCity?.value,
+      institution: selectedInstitution?.value,
+      phone,
+      avatar,
+      is_student: role === "student",
+      is_landlord: role === "landlord",
+    };
+    try {
+      if (data.is_student) {
+        const response = await axios.post(
+          "http://server:8000/api/students/",
+          data,
+          {
+            withCredentials: true,
+          },
+        );
+        if (response.status === 200) {
+          toast.success("Successfully updated");
+        }
+      } else if (data.is_landlord) {
+        const response = await axios.post(
+          "http://server:8000/api/landlords/",
+          data,
+          {
+            withCredentials: true,
+          },
+        );
+        if (response.status === 200) {
+          toast.success("Successfully updated");
+        }
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong",
+      );
+    }
+  }
+
   return (
     <main className="w-full p-4 text-indigo-950">
       <div className="flex w-full flex-col items-center justify-center gap-4 bg-green-400">
@@ -87,7 +129,7 @@ const MyDetails = () => {
           Let&apos;s get to know you better..
         </p>
       </div>
-      <form className="mt-8 flex !w-full flex-col gap-4">
+      <form className="mt-8 flex !w-full flex-col gap-4" onSubmit={submitForm}>
         <Select value={role} onValueChange={(value) => setRole(value)}>
           <SelectTrigger className="w-full text-indigo-950">
             <SelectValue placeholder="Select who you are" />
