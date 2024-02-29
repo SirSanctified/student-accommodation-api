@@ -15,24 +15,24 @@ import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface CityResponse {
+interface InstitutionResponse {
   name: string;
   id: number;
 }
 
-export function AddCity({
+export function AddInstitution({
   setSelectedOption,
 }: {
   setSelectedOption: (option: ComboboxOption) => void;
 }) {
-  const [city, setCity] = useState<string>("");
+  const [institution, setInstitution] = useState<string>("");
   async function onAddSuccess() {
-    if (city) {
+    if (institution) {
       try {
-        const response = await axios.post<CityResponse>(
-          "http://server:8000/api/cities/",
+        const response = await axios.post<InstitutionResponse>(
+          "http://server:8000/api/institutions/",
           {
-            name: city,
+            name: institution,
           },
           {
             withCredentials: true,
@@ -46,26 +46,24 @@ export function AddCity({
           setSelectedOption(newOption);
         }
       } catch (error) {
-        toast.error("Failed to add city");
+        toast.error("Failed to add institution");
       }
     }
   }
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline">Add New City</Button>
+        <Button variant="outline">Add New</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-indigo-950">
-            Add New City
-          </AlertDialogTitle>
+          <AlertDialogTitle>Add Institution</AlertDialogTitle>
           <Input
-            placeholder="New City Name"
-            className="w-full text-indigo-950"
-            name="city"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
+            placeholder="New Institution Name"
+            className="w-full"
+            name="institution"
+            value={institution}
+            onChange={(e) => setInstitution(e.target.value)}
           />
         </AlertDialogHeader>
         <AlertDialogFooter>

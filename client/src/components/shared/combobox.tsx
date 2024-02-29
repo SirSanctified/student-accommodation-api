@@ -89,7 +89,12 @@ function OptionList({
     <Command>
       <CommandInput placeholder="Filter status..." />
       <CommandList>
-        {commandEmpty && <CommandEmpty>{commandEmpty}</CommandEmpty>}
+        {commandEmpty && (
+          <CommandEmpty>
+            <p className="mb-4 text-sm text-indigo-950">No options found</p>
+            {commandEmpty}
+          </CommandEmpty>
+        )}
         <CommandGroup>
           {options.map((option) => (
             <CommandItem
@@ -101,6 +106,7 @@ function OptionList({
                 );
                 setOpen(false);
               }}
+              className="text-indigo-950"
             >
               {option.label}
             </CommandItem>
