@@ -25,7 +25,7 @@ export function AddCity({
     if (city) {
       try {
         const response = await axios.post<InstitutionAndCityResponse>(
-          "http://server:8000/api/cities/",
+          "http://localhost:8000/api/cities/",
           {
             name: city,
           },
@@ -57,7 +57,7 @@ export function AddCity({
           </AlertDialogTitle>
           <Input
             placeholder="New City Name"
-            className="w-full text-indigo-950"
+            className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
             name="city"
             value={city}
             onChange={(e) => setCity(e.target.value)}

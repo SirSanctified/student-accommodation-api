@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,8 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ComboboxOption, InstitutionAndCityResponse } from "@/types";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ComboBoxResponsive } from "./combobox";
+import { AddCity } from "./addCityDialog";
 
 export function AddInstitution({
   setSelectedOption,
@@ -21,13 +25,33 @@ export function AddInstitution({
   setSelectedOption: (option: ComboboxOption) => void;
 }) {
   const [institution, setInstitution] = useState<string>("");
+  const [cities, setCities] = useState<InstitutionAndCityResponse[]>([]);
+
+  const [selectedCity, setSelectedCity] = useState<ComboboxOption | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const response = await axios.get<InstitutionAndCityResponse[]>(
+          "http://localhost:8000/api/cities/",
+        );
+        if (response.status === 200) {
+          setCities(response.data);
+        }
+      } catch (error) {
+        setCities([]);
+      }
+    })();
+  }, []);
+
   async function onAddSuccess() {
     if (institution) {
       try {
         const response = await axios.post<InstitutionAndCityResponse>(
-          "http://server:8000/api/institutions/",
+          "http://localhost:8000/api/institutions/",
           {
             name: institution,
+            city: cities.find((city) => city.name === selectedCity?.label)?.url,
           },
           {
             withCredentials: true,
@@ -57,10 +81,20 @@ export function AddInstitution({
           </AlertDialogTitle>
           <Input
             placeholder="New Institution Name"
-            className="w-full text-indigo-950"
+            className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
             name="institution"
             value={institution}
             onChange={(e) => setInstitution(e.target.value)}
+          />
+          <ComboBoxResponsive
+            placeholder="Which city is the institution located in?"
+            selectedOption={selectedCity}
+            setSelectedOption={setSelectedCity}
+            options={cities.map((city) => ({
+              label: city.name,
+              value: city.id.toString(),
+            }))}
+            commandEmpty={<AddCity setSelectedOption={setSelectedCity} />}
           />
         </AlertDialogHeader>
         <AlertDialogFooter>

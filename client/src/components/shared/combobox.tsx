@@ -39,7 +39,10 @@ export function ComboBoxResponsive({
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-start">
+          <Button
+            variant="outline"
+            className="w-full justify-start bg-indigo-200 focus:outline-none"
+          >
             {selectedOption ? (
               <>{selectedOption.label}</>
             ) : (
@@ -62,7 +65,10 @@ export function ComboBoxResponsive({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-full justify-start">
+        <Button
+          variant="outline"
+          className="w-full justify-start bg-indigo-200 focus:outline-none"
+        >
           {selectedOption ? <>{selectedOption.label}</> : <>+ {placeholder}</>}
         </Button>
       </DrawerTrigger>
@@ -93,7 +99,10 @@ function OptionList({
 }) {
   return (
     <Command>
-      <CommandInput placeholder="Filter status..." />
+      <CommandInput
+        placeholder="Filter status..."
+        className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+      />
       <CommandList>
         {commandEmpty && (
           <CommandEmpty>
