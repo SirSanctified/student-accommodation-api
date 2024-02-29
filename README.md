@@ -1,3 +1,5 @@
+[![Code Style Check](https://github.com/SirSanctified/student-accommodation-api/actions/workflows/check-formating.yaml/badge.svg)](https://github.com/SirSanctified/student-accommodation-api/actions/workflows/check-formating.yaml)
+
 # Student Accommadation System
 
 A simple student accommadation system that allows students to book rooms and pay for them. The system also allows landlords to add rooms and view the rooms that have been booked. The system is built using the Django framework for the backend and the frontend is built using Next.js, Typescript and TailwindCSS.
