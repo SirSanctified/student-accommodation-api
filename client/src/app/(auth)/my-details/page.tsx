@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuthStore } from "@/store/store";
 import type { ComboboxOption, InstitutionAndCityResponse } from "@/types";
 import axios from "axios";
 import Image from "next/image";
@@ -25,6 +26,7 @@ const MyDetails = () => {
   const [phone, setPhone] = useState<string>("");
   const [avatar, setAvatar] = useState<string>("");
   const [role, setRole] = useState<string>("");
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     async function fetchCitiesAndInstitutions() {
@@ -66,6 +68,10 @@ const MyDetails = () => {
       /* do nothing */
     });
   }, []);
+
+  if (!isAuthenticated) {
+    window.location.href = "/signin";
+  }
   return (
     <main className="w-full p-4 text-indigo-950">
       <div className="flex w-full flex-col items-center justify-center gap-4 bg-green-400">
