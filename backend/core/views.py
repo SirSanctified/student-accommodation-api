@@ -63,6 +63,7 @@ class CityViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = None
     queryset = City.objects.all()  # pylint: disable=no-member
     serializer_class = CitySerializer
 
@@ -73,6 +74,7 @@ class InstitutionViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = None
     queryset = Institution.objects.all()  # pylint: disable=no-member
     serializer_class = InstitutionSerializer
 
