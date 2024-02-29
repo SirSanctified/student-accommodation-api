@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
         user.is_staff = True
         user.save(using=self._db)
         return user
-    
+
     def create_landlord(self, email, password):
         user = self.create_user(
             email,
@@ -33,7 +33,7 @@ class CustomUserManager(BaseUserManager):
         user.is_landlord = True
         user.save(using=self._db)
         return user
-    
+
     def create_student(self, email, password):
         user = self.create_user(
             email,

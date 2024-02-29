@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from . custom_managers import CustomUserManager
+from .custom_managers import CustomUserManager
+
 
 class User(AbstractUser):
     class Meta:
