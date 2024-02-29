@@ -14,3 +14,8 @@ export type LoginType = {
 export type ErrorResponse = {
   detail: string;
 };
+
+export type ComboboxOption = {
+  value: string;
+  label: string;
+};
