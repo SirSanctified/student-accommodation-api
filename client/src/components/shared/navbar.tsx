@@ -45,7 +45,7 @@ const Navbar = () => {
             </Link>
           ))}
           {isAuthenticated ? (
-            <ProfileMenu trigger={<UserAvatar user={user!} />} />
+            <ProfileMenu user={user!} trigger={<UserAvatar user={user!} />} />
           ) : (
             <div className="flex items-center md:ml-4">
               <Link
@@ -60,7 +60,7 @@ const Navbar = () => {
         {/* Mobile */}
         <div className="flex items-center gap-4 md:hidden">
           {isAuthenticated ? (
-            <ProfileMenu trigger={<UserAvatar user={user!} />} />
+            <ProfileMenu user={user!} trigger={<UserAvatar user={user!} />} />
           ) : (
             <div className="flex items-center">
               <Link

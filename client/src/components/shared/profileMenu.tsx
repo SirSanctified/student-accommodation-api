@@ -12,10 +12,27 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import Link from "next/link";
-import { LogOutIcon, Settings, User } from "lucide-react";
+import {
+  BellIcon,
+  BriefcaseIcon,
+  BuildingIcon,
+  HeartIcon,
+  LightbulbIcon,
+  LogOutIcon,
+  PackageOpenIcon,
+  Settings,
+  UserIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { User } from "@/types";
 
-export function ProfileMenu({ trigger }: { trigger: React.ReactNode }) {
+export function ProfileMenu({
+  trigger,
+  user,
+}: {
+  trigger: React.ReactNode;
+  user: User;
+}) {
   const router = useRouter();
   return (
     <Menubar>
@@ -23,8 +40,12 @@ export function ProfileMenu({ trigger }: { trigger: React.ReactNode }) {
         <MenubarTrigger>{trigger}</MenubarTrigger>
         <MenubarContent className="text-md text-indigo-950">
           <MenubarItem>
-            <User className="mr-2 h-4 w-4" />
-            <Link href={"/profile"}>Profile</Link>
+            <UserIcon className="mr-2 h-4 w-4" />
+            <Link href={`/profile/${user.id}`}>Profile</Link>
+          </MenubarItem>
+          <MenubarItem>
+            <BellIcon className="mr-2 h-4 w-4" />
+            Notifications
           </MenubarItem>
           <MenubarItem>
             <Settings className="mr-2 h-4 w-4" />
@@ -39,15 +60,38 @@ export function ProfileMenu({ trigger }: { trigger: React.ReactNode }) {
             <LogOutIcon className="mr-2 h-4 w-4" />
             Logout
           </MenubarItem>
-          <MenubarSeparator />
-          <MenubarSub>
-            <MenubarSubTrigger>Share</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem>Email link</MenubarItem>
-              <MenubarItem>Messages</MenubarItem>
-              <MenubarItem>Notes</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          <MenubarSeparator className="my-1 h-[2px] bg-indigo-500" />
+          {user.is_student ? (
+            <>
+              <MenubarItem>
+                <BriefcaseIcon className="mr-2 h-4 w-4" />
+                <Link href={`/profile/${user.id}/bookings`}>Bookings</Link>
+              </MenubarItem>
+              <MenubarItem>
+                <HeartIcon className="mr-2 h-4 w-4" />
+                Favorites
+              </MenubarItem>
+              <MenubarItem>
+                <LightbulbIcon className="mr-2 h-4 w-4" />
+                Interests
+              </MenubarItem>
+            </>
+          ) : (
+            <>
+              <MenubarItem>
+                <BriefcaseIcon className="mr-2 h-4 w-4" />
+                <Link href={`/profile/${user.id}/bookings`}>Bookings</Link>
+              </MenubarItem>
+              <MenubarItem>
+                <BuildingIcon className="mr-2 h-4 w-4" />
+                <Link href={`/profile/${user.id}/properties`}>Properties</Link>
+              </MenubarItem>
+              <MenubarItem>
+                <PackageOpenIcon className="mr-2 h-4 w-4" />
+                Resources
+              </MenubarItem>
+            </>
+          )}
           <MenubarSeparator />
         </MenubarContent>
       </MenubarMenu>
