@@ -19,6 +19,9 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+
 const MyDetails = () => {
   const [institutions, setInstitutions] = useState<ComboboxOption[]>([]);
   const [selectedInstitution, setSelectedInstitution] =
@@ -30,12 +33,11 @@ const MyDetails = () => {
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchCitiesAndInstitutions() {
+    async function fetchInstitutions() {
       try {
         const institutionsResponse = await axios.get<
           InstitutionAndCityResponse[]
         >("http://localhost:8000/api/institutions/");
-        console.log(institutionsResponse.data);
         institutionsResponse.data.forEach((institution) => {
           const newOption: ComboboxOption = {
             label: institution.name,
@@ -52,7 +54,7 @@ const MyDetails = () => {
         setInstitutions([]);
       }
     }
-    fetchCitiesAndInstitutions().catch(() => {
+    fetchInstitutions().catch(() => {
       /* do nothing */
     });
   }, []);
@@ -74,7 +76,6 @@ const MyDetails = () => {
       phone,
       avatar,
     };
-
     try {
       if (userRoleData.is_student) {
         const response = await axios.post(

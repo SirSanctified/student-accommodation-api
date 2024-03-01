@@ -6,16 +6,21 @@ import { type User, useAuthStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
-export default function SignInPage() {
-  let user = null;
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
+export default function SignInPage() {
   const { loginUser } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  let user = null;
 
   async function submitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
 
@@ -35,13 +40,19 @@ export default function SignInPage() {
       );
       user = response.data as User;
       loginUser(user);
-
-      toast.success("Successfully signed in");
+      console.log(user);
+      toast.success("Successfully signed in", { id: "signin" });
+      formData.delete("email");
+      formData.delete("password");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong",
+        { id: "signin" },
       );
+      setIsLoading(false);
       return;
+    } finally {
+      setIsLoading(false);
     }
     window.location.href = "/my-details";
   }
@@ -59,7 +70,7 @@ export default function SignInPage() {
       <form className="flex flex-col gap-4" onSubmit={submitForm}>
         <Input placeholder="Email" type="email" name="email" />
         <Input placeholder="Password" type="password" name="password" />
-        <Button type="submit">Signin</Button>
+        <Button type="submit">{isLoading ? "Signing in..." : "Signin"}</Button>
         <p>
           Don&apos;t have an account?{" "}
           <Link

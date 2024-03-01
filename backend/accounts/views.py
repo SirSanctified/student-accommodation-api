@@ -91,7 +91,7 @@ class CustomTokenObtainPairView(TokenObtainPairView, APIView):
                 data["email"] = user_data.email
                 data["first_name"] = user_data.first_name
                 data["last_name"] = user_data.last_name
-                response.data = {"Success": "Login successfully", "data": data}
+                response.data = data
                 return response
             return Response(
                 {"No active": "This account is not active!!"},
