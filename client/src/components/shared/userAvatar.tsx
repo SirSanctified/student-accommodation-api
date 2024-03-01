@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { User } from "@/store/store";
+import type { User } from "@/types";
 
 export function UserAvatar({ user }: { user: User }) {
   return (
