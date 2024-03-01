@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { useAuthStore } from "@/store/store";
 import { UserAvatar } from "./userAvatar";
+import { ProfileMenu } from "./profileMenu";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -44,7 +45,7 @@ const Navbar = () => {
             </Link>
           ))}
           {isAuthenticated ? (
-            <UserAvatar user={user!} />
+            <ProfileMenu trigger={<UserAvatar user={user!} />} />
           ) : (
             <div className="flex items-center md:ml-4">
               <Link
@@ -57,7 +58,19 @@ const Navbar = () => {
           )}
         </div>
         {/* Mobile */}
-        <div className="flex md:hidden">
+        <div className="flex items-center gap-4 md:hidden">
+          {isAuthenticated ? (
+            <ProfileMenu trigger={<UserAvatar user={user!} />} />
+          ) : (
+            <div className="flex items-center">
+              <Link
+                href={"/signin"}
+                className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 ">
@@ -90,20 +103,6 @@ const Navbar = () => {
                   </SheetClose>
                 ))}
               </div>
-              {isAuthenticated ? (
-                <UserAvatar user={user!} />
-              ) : (
-                <div className="mt-[60%] flex items-center">
-                  <SheetClose asChild>
-                    <Link
-                      href={"/signin"}
-                      className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-1 text-lg font-bold text-white hover:from-indigo-600 hover:to-blue-600"
-                    >
-                      Sign In
-                    </Link>
-                  </SheetClose>
-                </div>
-              )}
             </SheetContent>
           </Sheet>
         </div>
