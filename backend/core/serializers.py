@@ -41,6 +41,8 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
         student = Student.objects.create(  # pylint: disable=no-member
             user=user, **validated_data
         )
+        user.is_student = True
+        user.save()
         return student
 
     def update(self, instance, validated_data):
@@ -78,6 +80,8 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
         landlord = Landlord.objects.create(  # pylint: disable=no-member
             user=user, **validated_data
         )
+        user.is_landlord = True
+        user.save()
         return landlord
 
     def update(self, instance, validated_data):
