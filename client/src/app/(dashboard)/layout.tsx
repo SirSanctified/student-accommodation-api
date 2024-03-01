@@ -30,7 +30,7 @@ export default function RootLayout({
           <Navbar />
           <SideNavbar />
           <Toaster position="top-right" />
-          <div className="ml-28 mt-20 min-h-screen p-4 2xl:ml-0">
+          <div className="mt-20 min-h-screen p-4 lg:ml-[12rem] xl:ml-[18rem] 2xl:ml-[19rem]">
             {children}
             <footer className="border-indigo-blue-500 fixed bottom-0 left-0 mx-auto w-full max-w-7xl rounded-t-md border-t bg-gradient-to-t from-indigo-950 to-blue-950 py-4 xl:left-[calc(50%-40rem)]">
               <p className="text-center text-white">
