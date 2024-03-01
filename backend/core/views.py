@@ -32,7 +32,7 @@ class StudentViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Student.objects.all()  # pylint: disable=no-member
     serializer_class = StudentSerializer
 
@@ -42,7 +42,7 @@ class LandlordViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Landlord.objects.all()  # pylint: disable=no-member
     serializer_class = LandlordSerializer
 

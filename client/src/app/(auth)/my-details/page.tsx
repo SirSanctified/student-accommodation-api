@@ -26,7 +26,7 @@ const MyDetails = () => {
   const [phone, setPhone] = useState<string>("");
   const [avatar, setAvatar] = useState<string>("");
   const [role, setRole] = useState<string>("");
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -62,18 +62,27 @@ const MyDetails = () => {
   }
   async function submitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = {
-      institution: selectedInstitution?.value,
-      phone,
-      avatar,
+    const userRoleData = {
+      user: `${process.env.NEXT_PUBLIC_API_URL}/auth/users/${user?.id}/`,
+      institution: `${process.env.NEXT_PUBLIC_API_URL}/institutions/${selectedInstitution?.value}/`,
       is_student: role === "student",
       is_landlord: role === "landlord",
     };
+
+    const userData = {
+      id: user?.id,
+      phone,
+      avatar,
+    };
+
     try {
-      if (data.is_student) {
+      if (userRoleData.is_student) {
         const response = await axios.post(
-          "http://localhost:8000/api/students/",
-          data,
+          `${process.env.NEXT_PUBLIC_API_URL}/students/`,
+          {
+            user: userRoleData.user,
+            institution: userRoleData.institution,
+          },
           {
             withCredentials: true,
           },
@@ -81,17 +90,34 @@ const MyDetails = () => {
         if (response.status === 200) {
           toast.success("Successfully updated");
         }
-      } else if (data.is_landlord) {
+      } else if (userRoleData.is_landlord) {
         const response = await axios.post(
-          "http://localhost:8000/api/landlords/",
-          data,
+          `${process.env.NEXT_PUBLIC_API_URL}/landlords/`,
+          {
+            user: userRoleData.user,
+          },
           {
             withCredentials: true,
           },
         );
+
         if (response.status === 200) {
           toast.success("Successfully updated");
         }
+      }
+
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/users/${user?.id}/`,
+        {
+          phone: userData.phone,
+          avatar: userData.avatar,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+      if (response.status === 200) {
+        toast.success("Successfully updated");
       }
     } catch (error) {
       toast.error(
