@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { type User, useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/store/store";
+import type { User } from "@/types";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -40,7 +41,6 @@ export default function SignInPage() {
       );
       user = response.data as User;
       loginUser(user);
-      console.log(user);
       toast.success("Successfully signed in", { id: "signin" });
       formData.delete("email");
       formData.delete("password");
@@ -54,7 +54,11 @@ export default function SignInPage() {
     } finally {
       setIsLoading(false);
     }
-    window.location.href = "/my-details";
+    if (!user.is_landlord && !user.is_student) {
+      window.location.href = "/my-details";
+    } else {
+      window.location.href = "/";
+    }
   }
 
   return (
