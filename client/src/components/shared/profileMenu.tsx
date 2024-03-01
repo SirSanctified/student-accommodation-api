@@ -65,7 +65,9 @@ export function ProfileMenu({
             <>
               <MenubarItem>
                 <BriefcaseIcon className="mr-2 h-4 w-4" />
-                <Link href={`/profile/${user.id}/bookings`}>Bookings</Link>
+                <Link href={`/profile/${user.id}/students/bookings`}>
+                  Bookings
+                </Link>
               </MenubarItem>
               <MenubarItem>
                 <HeartIcon className="mr-2 h-4 w-4" />
@@ -80,11 +82,15 @@ export function ProfileMenu({
             <>
               <MenubarItem>
                 <BriefcaseIcon className="mr-2 h-4 w-4" />
-                <Link href={`/profile/${user.id}/bookings`}>Bookings</Link>
+                <Link href={`/profile/${user.id}/landlords/bookings`}>
+                  Bookings
+                </Link>
               </MenubarItem>
               <MenubarItem>
                 <BuildingIcon className="mr-2 h-4 w-4" />
-                <Link href={`/profile/${user.id}/properties`}>Properties</Link>
+                <Link href={`/profile/${user.id}/landlords/properties`}>
+                  Properties
+                </Link>
               </MenubarItem>
               <MenubarItem>
                 <PackageOpenIcon className="mr-2 h-4 w-4" />

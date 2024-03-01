@@ -184,9 +184,6 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
     """Property serializer."""
 
     owner = serializers.ReadOnlyField(source="owner.id")
-    property_images = serializers.ListField(
-        child=serializers.ImageField(max_length=None, allow_empty_file=False),
-    )
 
     class Meta:
         """Property serializer."""
@@ -219,7 +216,7 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         amenities = validated_data.pop("amenities")
         landlord = validated_data.pop("landlord")
-        property_images = validated_data.pop("property_images")
+        property_images = validated_data.pop("images")
         new_property = Property.objects.create(  # pylint: disable=no-member
             landlord=landlord, **validated_data
         )
