@@ -11,6 +11,22 @@ export type LoginType = {
   password: string;
 };
 
+export type User = {
+  id?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_student: boolean;
+  is_landlord: boolean;
+};
+
+export type AuthState = {
+  user: User | null;
+  isAuthenticated: boolean;
+  loginUser: (user: User) => void;
+  logoutUser: () => void;
+};
+
 export type ErrorResponse = {
   detail: string;
 };
