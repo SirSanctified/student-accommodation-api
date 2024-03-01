@@ -49,6 +49,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "avatar",
             "phone",
             "is_active",
+            "is_student",
+            "is_landlord",
         ]
 
 
@@ -153,5 +155,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
+        token["is_student"] = user.is_student
+        token["is_landlord"] = user.is_landlord
 
         return token

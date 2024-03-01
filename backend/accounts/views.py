@@ -91,6 +91,8 @@ class CustomTokenObtainPairView(TokenObtainPairView, APIView):
                 data["email"] = user_data.email
                 data["first_name"] = user_data.first_name
                 data["last_name"] = user_data.last_name
+                data["is_student"] = user_data.is_student
+                data["is_landlord"] = user_data.is_landlord
                 response.data = data
                 return response
             return Response(
