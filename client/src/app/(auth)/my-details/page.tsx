@@ -71,14 +71,10 @@ const MyDetails = () => {
       is_landlord: role === "landlord",
     };
 
-    const userData = {
-      id: user?.id,
-      phone,
-      avatar,
-    };
+    const userData = avatar !== "" ? { phone, avatar } : { phone };
     try {
       if (userRoleData.is_student) {
-        const response = await axios.post(
+        await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/students/`,
           {
             user: userRoleData.user,
@@ -88,11 +84,8 @@ const MyDetails = () => {
             withCredentials: true,
           },
         );
-        if (response.status === 200) {
-          toast.success("Successfully updated");
-        }
       } else if (userRoleData.is_landlord) {
-        const response = await axios.post(
+        await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/landlords/`,
           {
             user: userRoleData.user,
@@ -101,32 +94,25 @@ const MyDetails = () => {
             withCredentials: true,
           },
         );
-
-        if (response.status === 200) {
-          toast.success("Successfully updated");
-        }
       }
 
-      const response = await axios.patch(
+      await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/users/${user?.id}/`,
-        {
-          phone: userData.phone,
-          avatar: userData.avatar,
-        },
+        userData,
         {
           withCredentials: true,
         },
       );
-      if (response.status === 200) {
-        toast.success("Successfully updated");
-      }
+
+      toast.success("Successfully updated");
+
+      router.push("/");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong",
       );
     }
   }
-  console.log(institutions);
   return (
     <main className="w-full p-4 pb-8 text-indigo-950">
       <div className="flex w-full flex-col items-center justify-center gap-4">

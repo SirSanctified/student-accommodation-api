@@ -33,7 +33,7 @@ export function AddInstitution({
     void (async () => {
       try {
         const response = await axios.get<InstitutionAndCityResponse[]>(
-          "http://localhost:8000/api/cities/",
+          `${process.env.NEXT_PUBLIC_API_URL}/cities/`,
         );
         if (response.status === 200) {
           setCities(response.data);
@@ -48,10 +48,10 @@ export function AddInstitution({
     if (institution) {
       try {
         const response = await axios.post<InstitutionAndCityResponse>(
-          "http://localhost:8000/api/institutions/",
+          `${process.env.NEXT_PUBLIC_API_URL}/institutions/`,
           {
             name: institution,
-            city: cities.find((city) => city.name === selectedCity?.label)?.url,
+            city: `${process.env.NEXT_PUBLIC_API_URL}/cities/${selectedCity?.value}/`,
           },
           {
             withCredentials: true,

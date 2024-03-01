@@ -32,7 +32,6 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             "bookings",
             "created_at",
             "updated_at",
-            "owner",
         ]
         extra_kwargs = {"bookings": {"read_only": True}}
 
