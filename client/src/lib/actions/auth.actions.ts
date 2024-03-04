@@ -1,6 +1,5 @@
 "use server";
-import type { User } from "@/store/store";
-import type { ErrorResponse, RegisterType } from "@/types";
+import type { ErrorResponse, RegisterType, User } from "@/types";
 import axios, { type AxiosError } from "axios";
 
 export const register = async (user: RegisterType): Promise<User> => {

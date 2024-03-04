@@ -1,4 +1,3 @@
-import Footer from "@/components/shared/footer";
 import Navbar from "@/components/shared/navbar";
 import SideNavbar from "@/components/shared/sideNavbar";
 import { Toaster } from "@/components/ui/sonner";
