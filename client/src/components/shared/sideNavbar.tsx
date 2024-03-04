@@ -11,7 +11,6 @@ import {
   BuildingIcon,
   ChevronRight,
   LightbulbIcon,
-  Menu,
   StoreIcon,
   X,
 } from "lucide-react";

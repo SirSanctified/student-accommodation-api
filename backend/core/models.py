@@ -9,7 +9,6 @@ class Amenity(models.Model):
         ordering = ["name"]
 
     name = models.CharField(max_length=80, null=False, blank=False)
-    icon = models.ImageField(upload_to="amenities", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -33,7 +32,23 @@ class Landlord(models.Model):
         verbose_name = "Landlord"
         ordering = ["user"]
 
+    PAYMENT_METHODS = [
+        ("bank transfer", "Bank Transfer"),
+        ("ecocash usd", "Ecocash USD"),
+        ("cash usd", "Cash USD"),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
+    preferred_payment_method = models.CharField(
+        max_length=50, choices=PAYMENT_METHODS, null=True, blank=True
+    )
+    bank_name = models.CharField(max_length=255, null=True, blank=True)
+    account_name = models.CharField(max_length=255, null=True, blank=True)
+    account_number = models.CharField(max_length=255, null=True, blank=True)
+    ecocash_number = models.CharField(max_length=255, null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -46,27 +61,33 @@ class Property(models.Model):
         verbose_name_plural = "Properties"
         verbose_name = "Property"
 
+    PROPERTY_TYPES = [
+        ("boarding house", "Boarding House"),
+        ("hostel", "Hostel"),
+        ("house", "House"),
+        ("apartment", "Apartment"),
+        ("cottage", "Cottage"),
+        ("flat", "Flat"),
+    ]
     name = models.CharField(max_length=255, null=True, blank=True)
+    property_type = models.CharField(
+        max_length=255,
+        choices=PROPERTY_TYPES,
+        default="boarding house",
+        null=True,
+        blank=True,
+    )
     owner = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, null=True, blank=True
     )
     landlord = models.ForeignKey(
         Landlord, related_name="properties", on_delete=models.CASCADE, null=True
     )
-    description = models.TextField(null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
     location = models.CharField(max_length=255, null=False, blank=False)
     street = models.CharField(max_length=255, null=False, blank=False)
     number = models.CharField(max_length=10, null=False, blank=False)
     amenities = models.ManyToManyField(Amenity, blank=True)
-    total_rooms = models.IntegerField(null=False, blank=False)
-    rooms_single = models.IntegerField(null=False, blank=False)
-    price_single = models.DecimalField(
-        max_digits=10, decimal_places=2, null=False, blank=False
-    )
-    price_shared = models.DecimalField(
-        max_digits=10, decimal_places=2, null=False, blank=False
-    )
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -113,6 +134,9 @@ class Student(models.Model):
     institution = models.ForeignKey(
         Institution, on_delete=models.CASCADE, null=True, blank=False
     )
+    registration_number = models.CharField(max_length=255, null=True, blank=True)
+    program = models.CharField(max_length=255, null=True, blank=True)
+    level = models.CharField(max_length=10, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -126,9 +150,6 @@ class Review(models.Model):
         verbose_name = "Review"
         ordering = ["-created_at"]
 
-    student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, null=True, blank=False
-    )
     owner = models.ForeignKey("accounts.User", on_delete=models.CASCADE, null=True)
     property = models.ForeignKey(
         Property,
@@ -152,19 +173,9 @@ class Booking(models.Model):
         verbose_name = "Booking"
         ordering = ["-created_at"]
 
-    student = models.OneToOneField(
-        Student,
-        related_name="bookings",
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-    )
     owner = models.ForeignKey("accounts.User", on_delete=models.CASCADE, null=True)
     property = models.ForeignKey(
         Property, on_delete=models.CASCADE, null=False, blank=False
-    )
-    room_type = models.CharField(
-        max_length=255, default="shared", null=False, blank=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
