@@ -169,6 +169,7 @@ class Room(models.Model):
         max_digits=10, decimal_places=2, null=False, blank=False
     )
     num_beds = models.IntegerField(null=False, blank=False)
+    occupied_beds = models.IntegerField(null=False, blank=False, default=0)
     is_available = models.BooleanField(default=True)
     display_image = models.ImageField(
         upload_to="rooms/images",
