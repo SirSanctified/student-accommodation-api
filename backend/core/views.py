@@ -14,6 +14,7 @@ from .serializers import (
     ReviewSerializer,
     BookingSerializer,
     InstitutionSerializer,
+    RoomSerializer,
 )
 from .models import (
     Student,
@@ -24,6 +25,8 @@ from .models import (
     Amenity,
     Review,
     Booking,
+    Room,
+    RoomImage,
 )
 
 
@@ -107,3 +110,22 @@ class BookingViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Booking.objects.all()  # pylint: disable=no-member
     serializer_class = BookingSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to add the student to the booking.
+        """
+        # TODO: Add the student to the booking, make sure the room availability
+        # and occupied beds are updated
+        request.data["student"] = request.user.id
+        return super().create(request, *args, **kwargs)
+
+
+class RoomViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Room.objects.all()  # pylint: disable=no-member
+    serializer_class = RoomSerializer
