@@ -187,34 +187,6 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
             "updated_at",
         ]
 
-    def create(self, validated_data):
-        student = validated_data.pop("student")
-        new_property = validated_data.pop("property")
-        booking = Booking.objects.create(  # pylint: disable=no-member
-            student=student, property=new_property, **validated_data
-        )
-        return booking
-
-    def update(self, instance, validated_data):
-        instance.student = validated_data.get("student", instance.student)
-        instance.property = validated_data.get("property", instance.property)
-        instance.updated_at = timezone.now()
-        instance.save()
-        return instance
-
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns it.
-
-        Parameters:
-            instance: the instance to be deleted
-
-        Returns:
-            The deleted instance
-        """
-        instance.delete()
-        return instance
-
 
 class PropertySerializer(serializers.HyperlinkedModelSerializer):
     """Property serializer."""
@@ -287,6 +259,7 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
             "room_type",
             "name",
             "num_beds",
+            "occupied_beds",
             "description",
             "price",
             "is_available",
