@@ -5,12 +5,13 @@ Serializers for the core app.
 from django.utils import timezone
 from rest_framework import serializers
 from .models import (
-    PropertyImage,
     Student,
     Landlord,
     Institution,
     Booking,
     Property,
+    Room,
+    RoomImage,
     Amenity,
     City,
     Review,
@@ -265,6 +266,73 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
         )
         instance.updated_at = timezone.now()
         instance.save()
+        return instance
+
+
+class RoomSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Room serializer.
+    """
+
+    class Meta:
+        """
+        Room serializer.
+        """
+
+        model = Room
+        fields = [
+            "id",
+            "url",
+            "property",
+            "room_type",
+            "name",
+            "num_beds",
+            "description",
+            "price",
+            "is_available",
+            "display_image",
+            "images",
+            "created_at",
+            "updated_at",
+        ]
+
+    def create(self, validated_data):
+        new_property = validated_data.pop("property")
+        images = validated_data.pop("images")
+        room = Room.objects.create(  # pylint: disable=no-member
+            property=new_property, **validated_data
+        )
+        for image in images:
+            RoomImage.objects.create(  # pylint: disable=no-member
+                room=room, image=image
+            )
+        return room
+
+    def update(self, instance, validated_data):
+        instance.property = validated_data.get("property", instance.property)
+        instance.room_type = validated_data.get("room_type", instance.room_type)
+        instance.name = validated_data.get("name", instance.name)
+        instance.num_beds = validated_data.get("num_beds", instance.num_beds)
+        instance.description = validated_data.get("description", instance.description)
+        instance.price = validated_data.get("price", instance.price)
+        instance.is_available = validated_data.get(
+            "is_available", instance.is_available
+        )
+        instance.display_image = validated_data.get(
+            "display_image", instance.display_image
+        )
+        instance.updated_at = timezone.now()
+        instance.save()
+        return instance
+
+    def delete(self, instance):
+        """
+        Deletes the given instance and returns the deleted instance.
+
+        :param instance: The instance to be deleted
+        :return: The deleted instance
+        """
+        instance.delete()
         return instance
 
 
