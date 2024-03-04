@@ -28,6 +28,9 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "user",
+            "registaion_number",
+            "program",
+            "level",
             "institution",
             "bookings",
             "created_at",
@@ -48,6 +51,11 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         instance.user = validated_data.get("user", instance.user)
         instance.institution = validated_data.get("institution", instance.institution)
+        instance.registration_number = validated_data.get(
+            "registration_number", instance.registration_number
+        )
+        instance.program = validated_data.get("program", instance.program)
+        instance.level = validated_data.get("level", instance.level)
         instance.save()
         return instance
 
@@ -72,7 +80,20 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
         """Landlord serializer."""
 
         model = Landlord
-        fields = ["id", "url", "user", "properties"]
+        fields = [
+            "id",
+            "url",
+            "user",
+            "properties",
+            "city",
+            "preferred_payment_method",
+            "address",
+            "bank_name",
+            "account_name",
+            "account_number",
+            "ecocash_number",
+            "is_verified",
+        ]
         extra_kwargs = {"properties": {"read_only": True}}
 
     def create(self, validated_data):
@@ -87,6 +108,22 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         properties = validated_data.pop("properties")
         instance.user = validated_data.get("user", instance.user)
+        instance.city = validated_data.get("city", instance.city)
+        instance.preferred_payment_method = validated_data.get(
+            "preferred_payment_method", instance.preferred_payment_method
+        )
+        instance.address = validated_data.get("address", instance.address)
+        instance.bank_name = validated_data.get("bank_name", instance.bank_name)
+        instance.account_name = validated_data.get(
+            "account_name", instance.account_name
+        )
+        instance.account_number = validated_data.get(
+            "account_number", instance.account_number
+        )
+        instance.ecocash_number = validated_data.get(
+            "ecocash_number", instance.ecocash_number
+        )
+        instance.is_verified = validated_data.get("is_verified", instance.is_verified)
         instance.properties = properties
         instance.save()
         return instance
@@ -143,10 +180,8 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "id",
             "url",
-            "student",
             "owner",
             "property",
-            "room_type",
             "created_at",
             "updated_at",
         ]
@@ -192,21 +227,14 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "url",
             "id",
-            "landlord",
             "owner",
             "name",
-            "images",
-            "description",
+            "property_type",
             "city",
             "location",
             "street",
             "number",
-            "total_rooms",
-            "rooms_single",
-            "price_single",
-            "price_shared",
             "amenities",
-            "reviews",
             "is_published",
             "created_at",
             "updated_at",
@@ -216,35 +244,21 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         amenities = validated_data.pop("amenities")
         landlord = validated_data.pop("landlord")
-        property_images = validated_data.pop("images")
         new_property = Property.objects.create(  # pylint: disable=no-member
             landlord=landlord, **validated_data
         )
-        for image in property_images:
-            PropertyImage.objects.create(  # pylint: disable=no-member
-                property=new_property, image=image
-            )
         new_property.amenities.set(amenities)
         return new_property
 
     def update(self, instance, validated_data):
-        instance.landlord = validated_data.get("landlord", instance.landlord)
         instance.name = validated_data.get("name", instance.name)
-        instance.description = validated_data.get("description", instance.description)
         instance.city = validated_data.get("city", instance.city)
+        instance.property_type = validated_data.get(
+            "property_type", instance.property_type
+        )
         instance.location = validated_data.get("location", instance.location)
         instance.street = validated_data.get("street", instance.street)
         instance.number = validated_data.get("number", instance.number)
-        instance.total_rooms = validated_data.get("total_rooms", instance.total_rooms)
-        instance.rooms_single = validated_data.get(
-            "rooms_single", instance.rooms_single
-        )
-        instance.price_single = validated_data.get(
-            "price_single", instance.price_single
-        )
-        instance.price_shared = validated_data.get(
-            "price_shared", instance.price_shared
-        )
         instance.amenities = validated_data.get("amenities", instance.amenities)
         instance.is_published = validated_data.get(
             "is_published", instance.is_published
@@ -261,7 +275,7 @@ class AmenitySerializer(serializers.HyperlinkedModelSerializer):
         """Amenity serializer."""
 
         model = Amenity
-        fields = ["id", "url", "name", "icon"]
+        fields = ["id", "url", "name"]
 
     def create(self, validated_data):
         amenity = Amenity.objects.create(**validated_data)  # pylint: disable=no-member
@@ -306,7 +320,6 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "property",
-            "student",
             "owner",
             "rating",
             "comment",
