@@ -28,7 +28,7 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "user",
-            "registaion_number",
+            "registration_number",
             "program",
             "level",
             "institution",
