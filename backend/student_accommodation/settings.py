@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
     "rest_framework",
-    "rest_framework_swagger",
     "drf_yasg",
     "corsheaders",
     "django_filters",
