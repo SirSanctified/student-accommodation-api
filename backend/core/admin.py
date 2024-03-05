@@ -3,7 +3,7 @@ from .models import (
     Student,
     Landlord,
     Property,
-    PropertyImage,
+    RoomImage,
     City,
     Institution,
     Amenity,
@@ -33,21 +33,19 @@ class LandlordModelAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 
-class PropertyImageModelAdmin(admin.StackedInline):
-    model = PropertyImage
-    list_display = ["property", "image", "created_at", "updated_at"]
+class RoomImageModelAdmin(admin.StackedInline):
+    model = RoomImage
+    list_display = ["room", "image", "created_at", "updated_at"]
     list_filter = ["created_at", "updated_at"]
 
 
 @admin.register(Property)
 class PropertyModelAdmin(admin.ModelAdmin):
-    inlines = [PropertyImageModelAdmin]
     list_display = [
         "city",
         "location",
         "street",
         "number",
-        "total_rooms",
         "is_published",
         "created_at",
         "updated_at",
@@ -58,7 +56,7 @@ class PropertyModelAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingModelAdmin(admin.ModelAdmin):
-    list_display = ["student", "property"]
+    list_display = ["owner", "room"]
     list_filter = ["created_at", "updated_at"]
     list_per_page = 25
 
@@ -71,8 +69,8 @@ class CityModelAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewModelAdmin(admin.ModelAdmin):
-    list_display = ["student", "property", "rating"]
-    list_filter = ["student", "property", "created_at"]
+    list_display = ["owner", "property", "rating"]
+    list_filter = ["owner", "property", "created_at"]
     list_per_page = 25
 
 
