@@ -1,3 +1,5 @@
+"""URLs for the core app."""
+
 from rest_framework.routers import DefaultRouter
 from . import views
 
@@ -9,5 +11,7 @@ router.register(r"cities", views.CityViewSet)
 router.register(r"institutions", views.InstitutionViewSet)
 router.register(r"amenities", views.AmenityViewSet)
 router.register(r"bookings", views.BookingViewSet)
+router.register(r"reviews", views.ReviewViewSet)
+router.register(r"rooms", views.RoomViewSet)
 
 urlpatterns = router.urls
