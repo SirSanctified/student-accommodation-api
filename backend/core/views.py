@@ -2,8 +2,13 @@
 This module contains the viewsets for the core app.
 """
 
+from django.db import transaction
+from django.forms import ValidationError
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from core.permissions import IsOwnerOrReadOnly
 from .serializers import (
     StudentSerializer,
@@ -14,6 +19,7 @@ from .serializers import (
     ReviewSerializer,
     BookingSerializer,
     InstitutionSerializer,
+    RoomSerializer,
 )
 from .models import (
     Student,
@@ -24,6 +30,7 @@ from .models import (
     Amenity,
     Review,
     Booking,
+    Room,
 )
 
 
@@ -107,3 +114,89 @@ class BookingViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Booking.objects.all()  # pylint: disable=no-member
     serializer_class = BookingSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to add the student to the booking.
+        """
+        booking = None
+        data = request.data
+        room_id = request.data.get("room")
+        room = Room.objects.get(id=room_id)  # pylint: disable=no-member
+        try:
+
+            if room.is_available:
+                booking = Booking.objects.create(  # pylint: disable=no-member
+                    owner=request.user,
+                    room=room,
+                    start_date=data["start_date"],
+                    end_date=data["end_date"],
+                )
+                room.occupied_beds += 1
+                room.available_beds -= 1
+                if room.available_beds == 0:
+                    room.is_available = False
+                room.clean()
+                room.save()
+                return Response(booking, status=status.HTTP_201_CREATED)
+            return Response(
+                {"detail": "Room is already full"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override the destroy method to update the room availability.
+        """
+        instance = self.get_object()
+        room = instance.room
+        if instance.status not in ["pending", "approved"]:
+            return Response(
+                {"detail": "Booking cannot be cancelled from its current state."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            room.occupied_beds -= 1
+            room.available_beds += 1
+            if room.available_beds > 0:
+                room.is_available = True
+            room.clean()
+            room.save()
+            instance.status = "cancelled"
+            instance.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        """
+        Override the update method to update the room availability.
+        """
+        data = request.data
+        instance = self.get_object()
+        room = instance.room
+        try:
+            if data.get("status") in ["cancelled", "rejected"]:
+                room.occupied_beds -= 1
+                room.available_beds += 1
+                if room.available_beds > 0:
+                    room.is_available = True
+                room.clean()
+                room.save()
+            return super().update(request, *args, **kwargs)
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RoomViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Room.objects.all()  # pylint: disable=no-member
+    serializer_class = RoomSerializer
