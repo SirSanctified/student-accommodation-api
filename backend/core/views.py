@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from core.permissions import IsOwnerOrReadOnly
 from .serializers import (
     StudentSerializer,
@@ -28,7 +29,6 @@ from .models import (
     Review,
     Booking,
     Room,
-    RoomImage,
 )
 
 
@@ -175,6 +175,7 @@ class RoomViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Room.objects.all()  # pylint: disable=no-member
     serializer_class = RoomSerializer

@@ -60,19 +60,6 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
         return instance
 
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns the deleted instance.
-
-        Parameters:
-            instance: the instance to be deleted
-
-        Returns:
-            The deleted instance
-        """
-        instance.delete()
-        return instance
-
 
 class LandlordSerializer(serializers.HyperlinkedModelSerializer):
     """Landlord serializer."""
@@ -129,16 +116,6 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
         return instance
 
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns the deleted instance.
-
-        :param instance: The instance to be deleted
-        :return: The deleted instance
-        """
-        instance.delete()
-        return instance
-
 
 class InstitutionSerializer(serializers.HyperlinkedModelSerializer):
     """Institution serializer."""
@@ -159,13 +136,6 @@ class InstitutionSerializer(serializers.HyperlinkedModelSerializer):
         instance.name = validated_data.get("name", instance.name)
         instance.city = validated_data.get("city", instance.city)
         instance.save()
-        return instance
-
-    def destroy(self, instance):
-        """
-        Delete the given instance and return it.
-        """
-        instance.delete()
         return instance
 
 
@@ -241,10 +211,22 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
+class RoomImageSerializer(serializers.HyperlinkedModelSerializer):
+    """Room image serializer."""
+
+    class Meta:
+        """Room image serializer."""
+
+        model = RoomImage
+        fields = ["id", "url", "room", "image", "created_at", "updated_at"]
+
+
 class RoomSerializer(serializers.HyperlinkedModelSerializer):
     """
     Room serializer.
     """
+
+    images = RoomImageSerializer(many=True)
 
     class Meta:
         """
@@ -272,13 +254,13 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         new_property = validated_data.pop("property")
-        images = validated_data.pop("images")
+        images_data = validated_data.pop("images")
         room = Room.objects.create(  # pylint: disable=no-member
             property=new_property, **validated_data
         )
-        for image in images:
+        for image_data in images_data:
             RoomImage.objects.create(  # pylint: disable=no-member
-                room=room, image=image
+                room=room, **image_data
             )
         return room
 
@@ -299,16 +281,6 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
         return instance
 
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns the deleted instance.
-
-        :param instance: The instance to be deleted
-        :return: The deleted instance
-        """
-        instance.delete()
-        return instance
-
 
 class AmenitySerializer(serializers.HyperlinkedModelSerializer):
     """Amenity serializer."""
@@ -326,16 +298,6 @@ class AmenitySerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)
         instance.save()
-        return instance
-
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns the deleted instance.
-
-        :param instance: The instance to be deleted.
-        :return: The deleted instance.
-        """
-        instance.delete()
         return instance
 
 
@@ -380,9 +342,9 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
             The created review object.
         """
         new_property = validated_data.pop("property")
-        student = validated_data.pop("student")
+        owner = validated_data.pop("owner")
         review = Review.objects.create(  # pylint: disable=no-member
-            property=new_property, student=student, **validated_data
+            property=new_property, owner=owner, **validated_data
         )
         return review
 
@@ -396,17 +358,9 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
         """
 
         instance.property = validated_data.get("property", instance.property)
-        instance.student = validated_data.get("student", instance.student)
+        instance.owner = validated_data.get("owner", instance.owner)
         instance.rating = validated_data.get("rating", instance.rating)
         instance.comment = validated_data.get("comment", instance.comment)
         instance.updated_at = timezone.now()
         instance.save()
-        return instance
-
-    def delete(self, instance):
-        """
-        Deletes the given instance and returns the deleted instance.
-        """
-
-        instance.delete()
         return instance
