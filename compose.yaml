@@ -1,4 +1,5 @@
 version: '3.9'
+
 networks:
   student-accommodation:
     driver: bridge
@@ -7,9 +8,15 @@ services:
   server:
     container_name: server
     image: sirsanctified/server:latest
-    build: ./backend
+    build:
+      context: .
+      dockerfile: ./backend/docker/django/server.dockerfile
+    command: ./start.sh
     ports:
       - "8000:8000"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
     networks:
       - student-accommodation
     env_file:
@@ -72,7 +79,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend/db:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/
 
   pgadmin:
     container_name: pgadmin
@@ -87,4 +94,6 @@ services:
       - db
 
 volumes:
-  db:
+  pg_data:
+  static_volume:
+  media_volume:
