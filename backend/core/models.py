@@ -202,6 +202,11 @@ class Room(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.available_beds = self.num_beds
+        super().save(*args, **kwargs)
+
     def clean(self):
         """
         Clean the data by checking if the number of occupied and available beds
