@@ -24,6 +24,9 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """Student serializer."""
 
+        user = serializers.HyperlinkedRelatedField(
+            view_name="user-detail", read_only=True
+        )
         model = Student
         fields = [
             "id",
@@ -33,7 +36,6 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             "program",
             "level",
             "institution",
-            "bookings",
             "created_at",
             "updated_at",
         ]
@@ -67,12 +69,15 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """Landlord serializer."""
 
+        user = serializers.HyperlinkedRelatedField(
+            view_name="user-detail", read_only=True
+        )
+
         model = Landlord
         fields = [
             "id",
             "url",
             "user",
-            "properties",
             "city",
             "preferred_payment_method",
             "address",
@@ -82,7 +87,6 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
             "ecocash_number",
             "is_verified",
         ]
-        extra_kwargs = {"properties": {"read_only": True}}
 
     def create(self, validated_data):
         user = validated_data.pop("user")
@@ -152,7 +156,9 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "owner",
-            "property",
+            "room",
+            "start_date",
+            "end_date",
             "created_at",
             "updated_at",
         ]
@@ -226,7 +232,10 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
     Room serializer.
     """
 
-    images = RoomImageSerializer(many=True)
+    images = RoomImageSerializer(many=True, read_only=True)
+    property = serializers.HyperlinkedRelatedField(
+        view_name="property-detail", read_only=True
+    )
 
     class Meta:
         """

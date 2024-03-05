@@ -60,6 +60,14 @@ class PropertyViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    filterset_fields = ["city__name", "owner__last_name", "amenities__name"]
+    search_fields = [
+        "name",
+        "city__name",
+        "location",
+        "street",
+        "owner__last_name",
+    ]
     queryset = Property.objects.all()  # pylint: disable=no-member
     serializer_class = PropertySerializer
 
@@ -198,5 +206,23 @@ class RoomViewSet(ModelViewSet):
 
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticatedOrReadOnly]
+    search_fields = [
+        "name",
+        "property__city__name",
+        "property__name",
+        "property__location",
+        "property__street",
+        "property__owner__last_name",
+    ]
+    filterset_fields = [
+        "name",
+        "property__city__name",
+        "num_beds",
+        "price",
+        "available_beds",
+        "is_available",
+        "room_type",
+        "property__amenities__name",
+    ]
     queryset = Room.objects.all()  # pylint: disable=no-member
     serializer_class = RoomSerializer
