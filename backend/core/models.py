@@ -15,9 +15,10 @@ configured properly.
 """
 
 from django.db import models
+from django.forms import ValidationError
 from accounts.models import User
 
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 
 
 class Amenity(models.Model):
@@ -182,7 +183,6 @@ class Room(models.Model):
         blank=False,
         default=0,
         validators=[
-            MaxValueValidator(num_beds),
             MinValueValidator(0),
         ],
     )
@@ -190,7 +190,7 @@ class Room(models.Model):
         null=False,
         blank=False,
         default=num_beds,
-        validators=[MinValueValidator(1), MaxValueValidator(num_beds)],
+        validators=[MinValueValidator(1)],
     )
     is_available = models.BooleanField(default=True)
     display_image = models.ImageField(
@@ -201,6 +201,31 @@ class Room(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        """
+        Clean the data by checking if the number of occupied and available beds
+        exceed the total number of beds.
+        """
+        if self.occupied_beds > self.num_beds:
+            raise ValidationError(
+                {
+                    "occupied_beds": "Occupied beds cannot exceed the total number of beds."
+                }
+            )
+        if self.available_beds > self.num_beds:
+            raise ValidationError(
+                {
+                    "available_beds": "Available beds cannot exceed the total number of beds."
+                }
+            )
+        if self.available_beds + self.occupied_beds > self.num_beds:
+            raise ValidationError(
+                {
+                    "available_beds": "Available and occupied beds (sum) cannot exceed the \
+                        total number of beds."
+                }
+            )
 
     def __str__(self):
         return f"{self.name} - {self.property}"
