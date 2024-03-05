@@ -205,6 +205,8 @@ class Room(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.available_beds = self.num_beds
+        else:
+            self.available_beds = self.num_beds - self.occupied_beds
         super().save(*args, **kwargs)
 
     def clean(self):
