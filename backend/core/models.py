@@ -313,8 +313,23 @@ class Booking(models.Model):
         verbose_name = "Room Booking"
         ordering = ["-created_at"]
 
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+        ("cancelled", "Cancelled"),
+    ]
     owner = models.ForeignKey("accounts.User", on_delete=models.CASCADE, null=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, null=False, blank=False)
+    start_date = models.DateField(null=False, blank=False)
+    end_date = models.DateField(null=False, blank=False)
+    status = models.CharField(
+        max_length=255,
+        null=False,
+        blank=False,
+        default="pending",
+        choices=STATUS_CHOICES,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

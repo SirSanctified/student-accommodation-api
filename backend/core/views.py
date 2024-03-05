@@ -4,6 +4,8 @@ This module contains the viewsets for the core app.
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework import status
 from core.permissions import IsOwnerOrReadOnly
 from .serializers import (
     StudentSerializer,
@@ -115,10 +117,57 @@ class BookingViewSet(ModelViewSet):
         """
         Override the create method to add the student to the booking.
         """
-        # TODO: Add the student to the booking, make sure the room availability
-        # and occupied beds are updated
-        request.data["student"] = request.user.id
-        return super().create(request, *args, **kwargs)
+        booking = None
+        data = request.data
+        room_id = request.data.get("room")
+        room = Room.objects.get(id=room_id)  # pylint: disable=no-member
+
+        if room.is_available:
+            booking = Booking.objects.create(  # pylint: disable=no-member
+                owner=request.user,
+                room=room,
+                start_date=data["start_date"],
+                end_date=data["end_date"],
+            )
+            room.occupied_beds += 1
+            room.available_beds -= 1
+            if room.available_beds == 0:
+                room.is_available = False
+            room.save()
+            return Response(booking, status=status.HTTP_201_CREATED)
+        return Response(
+            {"detail": "Room is already full"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override the destroy method to update the room availability.
+        """
+        instance = self.get_object()
+        room = instance.room
+        room.occupied_beds -= 1
+        room.available_beds += 1
+        if room.available_beds > 0:
+            room.is_available = True
+        room.save()
+        instance.status = "cancelled"
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Override the update method to update the room availability.
+        """
+        data = request.data
+        instance = self.get_object()
+        room = instance.room
+        if data.get("status") == "cancelled" or data.get("status") == "rejected":
+            room.occupied_beds -= 1
+            room.available_beds += 1
+            if room.available_beds > 0:
+                room.is_available = True
+            room.save()
+        return super().update(request, *args, **kwargs)
 
 
 class RoomViewSet(ModelViewSet):
