@@ -260,6 +260,7 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
             "name",
             "num_beds",
             "occupied_beds",
+            "available_beds",
             "description",
             "price",
             "is_available",

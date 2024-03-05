@@ -17,6 +17,8 @@ configured properly.
 from django.db import models
 from accounts.models import User
 
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class Amenity(models.Model):
     """Amenity model"""
@@ -160,16 +162,36 @@ class Room(models.Model):
         null=False,
         blank=False,
     )
-    name = models.CharField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     room_type = models.CharField(
-        max_length=255, choices=ROOM_TYPES, default="single", null=True, blank=True
+        max_length=255, choices=ROOM_TYPES, default="single", null=False, blank=False
     )
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, null=False, blank=False
+        max_digits=10,
+        decimal_places=2,
+        null=False,
+        blank=False,
+        validators=[MinValueValidator(0.00)],
     )
-    num_beds = models.IntegerField(null=False, blank=False)
-    occupied_beds = models.IntegerField(null=False, blank=False, default=0)
+    num_beds = models.IntegerField(
+        null=False, blank=False, validators=[MinValueValidator(1)]
+    )
+    occupied_beds = models.IntegerField(
+        null=False,
+        blank=False,
+        default=0,
+        validators=[
+            MaxValueValidator(num_beds),
+            MinValueValidator(0),
+        ],
+    )
+    available_beds = models.IntegerField(
+        null=False,
+        blank=False,
+        default=num_beds,
+        validators=[MinValueValidator(1), MaxValueValidator(num_beds)],
+    )
     is_available = models.BooleanField(default=True)
     display_image = models.ImageField(
         upload_to="rooms/images",
@@ -198,7 +220,7 @@ class RoomImage(models.Model):
         verbose_name = "Room Image"
         ordering = ["-created_at"]
 
-    image = models.ImageField(upload_to="properties/images", null=False, blank=False)
+    image = models.ImageField(upload_to="rooms/images", null=False, blank=False)
     room = models.ForeignKey(
         Room,
         related_name="images",
