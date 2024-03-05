@@ -60,6 +60,14 @@ class PropertyViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    filterset_fields = ["city__name", "owner__last_name", "amenities__name"]
+    search_fields = [
+        "name",
+        "city__name",
+        "location",
+        "street",
+        "owner__last_name",
+    ]
     queryset = Property.objects.all()  # pylint: disable=no-member
     serializer_class = PropertySerializer
 
@@ -206,7 +214,7 @@ class RoomViewSet(ModelViewSet):
         "property__street",
         "property__owner__last_name",
     ]
-    filter_fields = [
+    filterset_fields = [
         "name",
         "property__city__name",
         "num_beds",
