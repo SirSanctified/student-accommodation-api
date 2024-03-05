@@ -119,9 +119,6 @@ class Property(models.Model):
     owner = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, null=True, blank=True
     )
-    landlord = models.ForeignKey(
-        Landlord, related_name="properties", on_delete=models.CASCADE, null=True
-    )
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
     location = models.CharField(max_length=255, null=False, blank=False)
     street = models.CharField(max_length=255, null=False, blank=False)
