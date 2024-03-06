@@ -34,7 +34,7 @@ down-v:
 	docker compose down -v
 
 roomio-db:
-	docker compose exec db psql -username=postgres --dbname=postgres
+	docker compose exec db psql --username=postgres --dbname=postgres
 
 shell:
 	docker compose exec server python3 manage.py shell

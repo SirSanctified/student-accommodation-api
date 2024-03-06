@@ -1,6 +1,8 @@
 venv
 .env
 __pycache__
+.pytest_cache
+.coverage
 db.sqlite3
 *.pyc
 db
