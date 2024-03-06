@@ -12,6 +12,8 @@ To get started with the project, you will need to have the following installed o
 
 - Docker 25.0+
 - Docker Desktop (Optional)
+- Makefile VSCode extension
+- Make
 
 ### Backend
 
@@ -23,23 +25,57 @@ Make sure you have the environment variables set in a `.env.local` file in the `
 
 ### Running the project
 
-To run the project, you will need to run the following commands:
+To run the project for the first time, you will need to run the following commands:
 
 ```bash
-docker compose up -d
+make build
 ```
 
 After running the above command, you can run the following command to set the django superuser:
 
 ```bash
-docker exec -it server python manage.py createsuperuser
+make superuser
 ```
 
 If you want to watch for changes while you make modifications to the code, you can run the following command in a separate terminal window:
 
 ```bash
-docker compose watch
+make watch
 ```
+
+If you want to only run the backend, you can run the following command:
+
+```bash
+make build-server
+```
+
+To run the containers without rebuilding them, you can run the following command:
+
+```bash
+make up
+```
+
+To stop the containers, you can run the following command:
+
+```bash
+make stop
+```
+
+To bring down the containers, you can run the following command:
+
+```bash
+make down
+```
+
+To bring the containers together with their volumes, you can run the following command:
+
+```bash
+make down-v
+```
+
+For more information on running the project, you can refer to the [Makefile](https://github.com/SirSanctified/student-accommodation-api/blob/main/Makefile)
+
+### Accessing the project
 
 You can then access the backend at `http://localhost:8000` and the frontend at `http://localhost:3000`.
 
