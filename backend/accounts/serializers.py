@@ -141,6 +141,15 @@ class RegisterSerializer(serializers.ModelSerializer):
             is_student=validated_data.get("is_student") or False,
             is_landlord=validated_data.get("is_landlord") or False,
         )
-        user.set_password(validated_data["password"])
+from django.contrib.auth.password_validation import validate_password
+
+  def create(self, validated_data):
+      user = User.objects.create(
+          ...
+      )
+      validate_password(validated_data["password"], user)
+      user.set_password(validated_data["password"])
+      user.save()
+      return user
         user.save()
         return user
