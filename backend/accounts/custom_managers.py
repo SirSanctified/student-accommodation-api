@@ -2,19 +2,26 @@ from django.contrib.auth.models import BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+
+    def normalize_email(self, email):
+        return email.lower()
+
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
 
+        normalized_email = self.normalize_email(email)
+
         user = self.model(
-            email=self.normalize_email(email),
+            email=normalized_email,
         )
 
         user.set_password(password)
+        user.is_active = True
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password):
+    def create_superuser(self, email, password, **extra_fields):
         user = self.create_user(
             email,
             password=password,
@@ -25,7 +32,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_landlord(self, email, password):
+    def create_landlord(self, email, password, **extra_fields):
         user = self.create_user(
             email,
             password=password,
@@ -34,7 +41,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_student(self, email, password):
+    def create_student(self, email, password, **extra_fields):
         user = self.create_user(
             email,
             password=password,
