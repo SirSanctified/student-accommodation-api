@@ -122,10 +122,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."}
             )
-        if len(attrs["password"]) > 128:
-            raise serializers.ValidationError(
-                {"password": "Password must be less than 128 characters long."}
-            )
         return attrs
 
     def create(self, validated_data):
