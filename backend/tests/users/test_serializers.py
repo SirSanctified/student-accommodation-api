@@ -47,6 +47,7 @@ class TestRegisterSerializer:
 
         with pytest.raises(serializers.ValidationError):
             serializer.is_valid(raise_exception=True)
+        assert "password" in serializer.errors
 
     def test_password_fields_match(self):
         """Test that the password fields match."""
