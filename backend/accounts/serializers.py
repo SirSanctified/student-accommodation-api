@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 User = get_user_model()
@@ -104,11 +103,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "first_name": {"required": True},
             "last_name": {"required": True},
+            "password": {"required": True},
         }
 
     def validate(self, attrs):
         """
         Validate the input attributes to ensure that the password fields match.
+        Validate the input attributes to ensure that the passwoeds are strong enough.
 
         Parameters:
             self: the instance of the class
@@ -117,9 +118,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         Returns:
             attrs: the validated attributes
         """
+
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."}
+            )
+        if len(attrs["password"]) > 128:
+            raise serializers.ValidationError(
+                {"password": "Password must be less than 128 characters long."}
             )
         return attrs
 
@@ -143,19 +149,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data["password"])
         user.save()
         return user
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token["id"] = user.id
-        token["email"] = user.email
-        token["first_name"] = user.first_name
-        token["last_name"] = user.last_name
-        token["is_student"] = user.is_student
-        token["is_landlord"] = user.is_landlord
-
-        return token
