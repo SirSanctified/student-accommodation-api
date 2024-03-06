@@ -16,9 +16,8 @@ configured properly.
 
 from django.db import models
 from django.forms import ValidationError
-from accounts.models import User
-
 from django.core.validators import MinValueValidator
+from accounts.models import User
 
 
 class Amenity(models.Model):
@@ -184,9 +183,9 @@ class Room(models.Model):
         ],
     )
     available_beds = models.IntegerField(
-        null=False,
-        blank=False,
-        default=num_beds,
+        null=True,
+        blank=True,
+        default=0,
         validators=[MinValueValidator(1)],
     )
     is_available = models.BooleanField(default=True)
@@ -204,6 +203,10 @@ class Room(models.Model):
             self.available_beds = self.num_beds
         else:
             self.available_beds = self.num_beds - self.occupied_beds
+
+        if self.occupied_beds == self.num_beds:
+            self.is_available = False
+
         super().save(*args, **kwargs)
 
     def clean(self):
@@ -228,6 +231,13 @@ class Room(models.Model):
                 {
                     "available_beds": "Available and occupied beds (sum) cannot exceed the \
                         total number of beds."
+                }
+            )
+        if self.occupied_beds + self.available_beds != self.num_beds:
+            raise ValidationError(
+                {
+                    "occupied_beds": "Occupied and available beds (sum) must equal the total \
+                        number of beds."
                 }
             )
 
@@ -261,7 +271,7 @@ class RoomImage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.room} - {self.image}"
+        return f"{self.room}"
 
 
 class Institution(models.Model):
@@ -315,7 +325,7 @@ class Review(models.Model):
         verbose_name = "Property Review"
         ordering = ["-created_at"]
 
-    owner = models.ForeignKey("accounts.User", on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     property = models.ForeignKey(
         Property,
         related_name="reviews",
@@ -348,7 +358,7 @@ class Booking(models.Model):
         ("rejected", "Rejected"),
         ("cancelled", "Cancelled"),
     ]
-    owner = models.ForeignKey("accounts.User", on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, null=False, blank=False)
     start_date = models.DateField(null=False, blank=False)
     end_date = models.DateField(null=False, blank=False)
