@@ -37,13 +37,13 @@ roomio-db:
 	docker compose exec db psql --username=postgres --dbname=postgres
 
 shell:
-	docker compose exec server python3 manage.py shell
+	docker compose exec api python3 manage.py shell
 
 test:
-	docker compose exec server pytest -p no:warnings --cov=.
+	docker compose exec api pytest -p no:warnings --cov=.
 
 test-html:
-	docker compose exec server pytest -p no:warnings --cov=. --cov-report=html
+	docker compose exec api pytest -p no:warnings --cov=. --cov-report=html
 
 stop:
 	docker compose stop
