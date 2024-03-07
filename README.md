@@ -12,8 +12,10 @@ To get started with the project, you will need to have the following installed o
 
 - Docker 25.0+
 - Docker Desktop (Optional)
-- Makefile VSCode extension
+- Makefile VSCode extension (Optional, enhances Makefile command integration in VSCode)
 - Make
+
+**Note**: *Make must be installed on your system to use these commands. Linux and macOS users typically have Make pre-installed. Windows users may need to install it separately*.  
 
 ### Backend
 

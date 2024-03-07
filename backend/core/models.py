@@ -183,8 +183,8 @@ class Room(models.Model):
         ],
     )
     available_beds = models.IntegerField(
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
         default=0,
         validators=[MinValueValidator(1)],
     )

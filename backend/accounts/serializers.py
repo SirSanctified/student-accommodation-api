@@ -103,7 +103,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "first_name": {"required": True},
             "last_name": {"required": True},
-            "password": {"required": True},
         }
 
     def validate(self, attrs):
@@ -122,10 +121,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."}
-            )
-        if len(attrs["password"]) > 128:
-            raise serializers.ValidationError(
-                {"password": "Password must be less than 128 characters long."}
             )
         return attrs
 
@@ -146,6 +141,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             is_student=validated_data.get("is_student") or False,
             is_landlord=validated_data.get("is_landlord") or False,
         )
+        validate_password(validated_data["password"], user)
         user.set_password(validated_data["password"])
         user.save()
         return user

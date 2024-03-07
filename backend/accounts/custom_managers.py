@@ -1,4 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.password_validation import validate_password
 
 
 class CustomUserManager(BaseUserManager):
@@ -15,7 +16,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(
             email=normalized_email,
         )
-
+        validate_password(password)
         user.set_password(password)
         user.is_active = True
         user.save(using=self._db)
