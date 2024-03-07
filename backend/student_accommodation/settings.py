@@ -16,16 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "server",
-    "server:8000",
-    "localhost:8000",
-    "127.0.0.1:8000",
-    "server:3000",
-    "localhost:3000",
-    "127.0.0.1:3000",
-]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -179,3 +170,5 @@ SIMPLE_JWT = {
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8080", "http://localhost:3000"]

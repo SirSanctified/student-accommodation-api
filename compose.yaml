@@ -5,15 +5,13 @@ networks:
     driver: bridge
 
 services:
-  server:
-    container_name: server
-    image: sirsanctified/server:latest
+  api:
+    container_name: api
+    image: sirsanctified/roomio-api:latest
     build:
       context: .
       dockerfile: ./backend/docker/django/server.dockerfile
     command: ./start.sh
-    ports:
-      - "8000:8000"
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/mediafiles
@@ -46,7 +44,7 @@ services:
 
   client:
     container_name: client
-    image: sirsanctified/client:latest
+    image: sirsanctified/roomio-client:latest
     build: ./client
     ports:
       - "3000:3000"
@@ -55,7 +53,7 @@ services:
     networks:
       - student-accommodation
     depends_on:
-      - server
+      - api
     develop:
       watch:
         - path: ./client
@@ -83,15 +81,31 @@ services:
 
   pgadmin:
     container_name: pgadmin
-    image: dpage/pgadmin4
+    image: fenglc/pgadmin4
     ports:
-      - "5050:80"
+      - "5050:5050"
     networks:
       - student-accommodation
     env_file:
       - ./backend/.env
     depends_on:
       - db
+
+  nginx:
+    restart: always
+    container_name: nginx
+    build:
+      context: ./backend/docker/nginx
+      dockerfile: nginx.dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    networks:
+      - student-accommodation
+    depends_on:
+      - api
 
 volumes:
   pg_data:
