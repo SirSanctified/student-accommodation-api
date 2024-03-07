@@ -199,7 +199,7 @@ class Room(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk and self.occupied_beds == 0:
             self.available_beds = self.num_beds
         else:
             self.available_beds = self.num_beds - self.occupied_beds

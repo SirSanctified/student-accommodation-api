@@ -205,7 +205,6 @@ class RoomViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticatedOrReadOnly]
     search_fields = [
         "name",
