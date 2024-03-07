@@ -1,3 +1,5 @@
 .venv
 .env.example
-db
+.coverage
+.pytest_cache/
+htmlcov/

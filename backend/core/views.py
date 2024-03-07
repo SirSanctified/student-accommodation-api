@@ -147,7 +147,8 @@ class BookingViewSet(ModelViewSet):
                     room.is_available = False
                 room.clean()
                 room.save()
-                return Response(booking, status=status.HTTP_201_CREATED)
+                serializer = BookingSerializer(booking, context={"request": request})
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
                 {"detail": "Room is already full"}, status=status.HTTP_400_BAD_REQUEST
             )

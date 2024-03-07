@@ -98,7 +98,6 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
         return landlord
 
     def update(self, instance, validated_data):
-        properties = validated_data.pop("properties")
         instance.user = validated_data.get("user", instance.user)
         instance.city = validated_data.get("city", instance.city)
         instance.preferred_payment_method = validated_data.get(
@@ -116,7 +115,6 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
             "ecocash_number", instance.ecocash_number
         )
         instance.is_verified = validated_data.get("is_verified", instance.is_verified)
-        instance.properties = properties
         instance.save()
         return instance
 
@@ -169,6 +167,14 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
 
     owner = serializers.ReadOnlyField(source="owner.id")
 
+    reviews = serializers.HyperlinkedRelatedField(
+        view_name="review-detail", read_only=True, many=True
+    )
+
+    amenities = serializers.PrimaryKeyRelatedField(
+        queryset=Amenity.objects.all(), many=True  # pylint: disable=no-member
+    )
+
     class Meta:
         """Property serializer."""
 
@@ -192,14 +198,14 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         amenities = validated_data.pop("amenities")
-        landlord = validated_data.pop("landlord")
         new_property = Property.objects.create(  # pylint: disable=no-member
-            landlord=landlord, **validated_data
+            **validated_data
         )
         new_property.amenities.set(amenities)
         return new_property
 
     def update(self, instance, validated_data):
+        """Update a property instance."""
         instance.name = validated_data.get("name", instance.name)
         instance.city = validated_data.get("city", instance.city)
         instance.property_type = validated_data.get(
@@ -208,10 +214,13 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
         instance.location = validated_data.get("location", instance.location)
         instance.street = validated_data.get("street", instance.street)
         instance.number = validated_data.get("number", instance.number)
-        instance.amenities = validated_data.get("amenities", instance.amenities)
         instance.is_published = validated_data.get(
             "is_published", instance.is_published
         )
+        instance.owner = validated_data.get("owner", instance.owner)
+
+        if "amenities" in validated_data:
+            instance.amenities.set(validated_data["amenities"])
         instance.updated_at = timezone.now()
         instance.save()
         return instance
@@ -232,9 +241,10 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
     Room serializer.
     """
 
-    images = RoomImageSerializer(many=True, read_only=True)
+    images = RoomImageSerializer(many=True, required=False)
     property = serializers.HyperlinkedRelatedField(
-        view_name="property-detail", read_only=True
+        view_name="property-detail",
+        queryset=Property.objects.all(),  # pylint: disable=no-member
     )
 
     class Meta:
@@ -261,12 +271,11 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
             "updated_at",
         ]
 
+        extra_kwargs = {"reviews": {"read_only": True}}
+
     def create(self, validated_data):
-        new_property = validated_data.pop("property")
-        images_data = validated_data.pop("images")
-        room = Room.objects.create(  # pylint: disable=no-member
-            property=new_property, **validated_data
-        )
+        images_data = validated_data.pop("images", [])
+        room = Room.objects.create(**validated_data)  # pylint: disable=no-member
         for image_data in images_data:
             RoomImage.objects.create(  # pylint: disable=no-member
                 room=room, **image_data
