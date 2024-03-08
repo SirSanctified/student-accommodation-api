@@ -68,6 +68,12 @@ class Landlord(models.Model):
         ("cash usd", "Cash USD"),
     ]
 
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("banned", "Banned"),
+        ("suspended", "Suspended"),
+    ]
+
     user = models.OneToOneField(
         User, related_name="landlord", on_delete=models.CASCADE, null=False, blank=False
     )
@@ -81,8 +87,32 @@ class Landlord(models.Model):
     account_number = models.CharField(max_length=255, null=True, blank=True)
     ecocash_number = models.CharField(max_length=255, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default="active", null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def ban(self):
+        """Ban landlord"""
+        if self.status == "banned":
+            return
+        self.status = "banned"
+        self.save()
+
+    def suspend(self):
+        """Suspend landlord"""
+        if self.status == "suspended":
+            return
+        self.status = "suspended"
+        self.save()
+
+    def activate(self):
+        """Activate landlord"""
+        if self.status == "active":
+            return
+        self.status = "active"
+        self.save()
 
     def __str__(self):
         return f"{self.user}"
@@ -388,3 +418,80 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.owner} - {self.room}"
+
+
+class LandlordVerificationDocument(models.Model):
+    """Landlord Verification Document model"""
+
+    class Meta:
+        """Meta class for Landlord Verification Document model"""
+
+        verbose_name_plural = "Landlord Verification Documents"
+        verbose_name = "Landlord Verification Document"
+        ordering = ["-created_at"]
+
+    DOCUMENT_TYPES = [
+        ("id_card", "ID Card"),
+        ("title_deed", "Title Deed"),
+        ("utility_bill", "Utility Bill"),
+    ]
+
+    landlord = models.ForeignKey(
+        Landlord,
+        related_name="landlord_verification_documents",
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    document_type = models.CharField(
+        max_length=50, choices=DOCUMENT_TYPES, null=False, blank=False
+    )
+    document = models.FileField(
+        upload_to="landlord/verification_documents", null=False, blank=False
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.landlord} - {self.document_type}"
+
+
+class LandlordVerificationRequest(models.Model):
+    """Landlord Verification Request model"""
+
+    class Meta:
+        """Meta class for Landlord Verification Request model"""
+
+        verbose_name_plural = "Landlord Verification Requests"
+        verbose_name = "Landlord Verification Request"
+        ordering = ["-created_at"]
+
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    )
+    landlord = models.ForeignKey(
+        Landlord, related_name="verification_requests", on_delete=models.CASCADE
+    )
+    id_card = models.FileField(upload_to="landlord_verification_documents/")
+    title_deed = models.FileField(upload_to="landlord_verification_documents/")
+    utility_bill = models.FileField(upload_to="landlord_verification_documents/")
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_CHOICES,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def verify(self):
+        """Verify landlord"""
+        self.status = "approved"
+        self.save()
+
+    def reject(self):
+        """Reject landlord"""
+        self.status = "rejected"
+        self.save()
+
+    def __str__(self):
+        return f"{self.landlord} - {self.status}"
