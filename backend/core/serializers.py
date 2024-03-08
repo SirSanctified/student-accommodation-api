@@ -359,6 +359,7 @@ class LandlordVerificationDocumentSerializer(serializers.HyperlinkedModelSeriali
     """Landlord verification document serializer."""
 
     landlord = serializers.HyperlinkedRelatedField(
+        write_only=True,
         view_name="landlord-detail",
         queryset=Landlord.objects.all(),  # pylint: disable=no-member
     )
@@ -377,6 +378,10 @@ class LandlordVerificationRequestSerializer(serializers.HyperlinkedModelSerializ
         view_name="landlord-detail",
         queryset=Landlord.objects.all(),  # pylint: disable=no-member
     )
+
+    id_card = LandlordVerificationDocumentSerializer()
+    title_deed = LandlordVerificationDocumentSerializer()
+    utility_bill = LandlordVerificationDocumentSerializer()
 
     class Meta:
         """Landlord verification request serializer."""

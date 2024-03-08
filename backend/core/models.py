@@ -436,6 +436,10 @@ class LandlordVerificationDocument(models.Model):
         ("utility_bill", "Utility Bill"),
     ]
 
+    landlord = models.ForeignKey(
+        Landlord, related_name="verification_documents", on_delete=models.CASCADE
+    )
+
     document_type = models.CharField(
         max_length=50, choices=DOCUMENT_TYPES, null=False, blank=False
     )
