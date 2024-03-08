@@ -56,6 +56,37 @@ class LandlordViewSet(ModelViewSet):
     queryset = Landlord.objects.all()  # pylint: disable=no-member
     serializer_class = LandlordSerializer
 
+    def update(self, request, *args, **kwargs):
+        try:
+            landlord = Landlord.objects.get(  # pylint: disable=no-member
+                user=request.user
+            )
+            if request.user.is_staff:
+                if request.data["status"] == "banned":
+                    landlord.ban()
+                    return Response(
+                        {"detail": "Landlord account has been banned."},
+                        status=status.HTTP_200_OK,
+                    )
+                if request.data["status"] == "active":
+                    landlord.activate()
+                    return Response(
+                        {"detail": "Landlord account has been activated."},
+                        status=status.HTTP_200_OK,
+                    )
+                if request.data["status"] == "suspended":
+                    landlord.suspend()
+                    return Response(
+                        {"detail": "Landlord account has been suspended."},
+                        status=status.HTTP_200_OK,
+                    )
+            return super().update(request, *args, **kwargs)
+        except Landlord.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Landlord does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
 
 class PropertyViewSet(ModelViewSet):
     """
