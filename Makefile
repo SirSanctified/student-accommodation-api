@@ -39,6 +39,9 @@ roomio-db:
 api:
 	docker compose up api nginx -d --remove-orphans
 
+db:
+	docker compose up db -d --remove-orphans
+
 shell:
 	docker compose exec api python3 manage.py shell
 

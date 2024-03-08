@@ -481,9 +481,9 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                 instance.verify()
                 sendmail(
                     subject="Verification Request",
-                    recipient_list=[request.landlord.user.email],
+                    recipient_list=[instance.landlord.user.email],
                     message=f"""
-                    Dear {request.landlord.user.first_name},
+                    Dear {instance.landlord.user.first_name},
 
                     Your verification request has been approved. You can now \
                     proceed to your dashboard and start publishing your rooms and\
@@ -501,9 +501,9 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                 instance.reject()
                 sendmail(
                     subject="Verification Request",
-                    recipient_list=[request.landlord.user.email],
+                    recipient_list=[instance.landlord.user.email],
                     message=f"""
-                    Dear {request.landlord.user.first_name},
+                    Dear {instance.landlord.user.first_name},
 
                     Your verification request has not been approved. If you think \
                     this was an error, please contact us.
@@ -517,10 +517,17 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
 
+            else:
+                return Response(
+                    {"detail": "Invalid status."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
+            print(e)
             return Response(
                 {
                     "detail": "Something went wrong during the verification \

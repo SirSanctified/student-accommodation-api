@@ -489,10 +489,7 @@ class LandlordVerificationRequest(models.Model):
         on_delete=models.CASCADE,
         null=False,
     )
-    status = models.CharField(
-        max_length=50,
-        choices=STATUS_CHOICES,
-    )
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
