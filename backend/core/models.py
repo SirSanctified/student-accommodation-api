@@ -68,7 +68,9 @@ class Landlord(models.Model):
         ("cash usd", "Cash USD"),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.OneToOneField(
+        User, related_name="landlord", on_delete=models.CASCADE, null=False, blank=False
+    )
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
     preferred_payment_method = models.CharField(
@@ -116,7 +118,11 @@ class Property(models.Model):
         blank=True,
     )
     owner = models.ForeignKey(
-        "accounts.User", on_delete=models.CASCADE, null=True, blank=True
+        "accounts.User",
+        related_name="properties",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
     location = models.CharField(max_length=255, null=False, blank=False)
@@ -301,7 +307,9 @@ class Student(models.Model):
         verbose_name = "Student"
         ordering = ["user"]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.OneToOneField(
+        User, related_name="student", on_delete=models.CASCADE, null=False, blank=False
+    )
     institution = models.ForeignKey(
         Institution, on_delete=models.CASCADE, null=True, blank=False
     )
@@ -325,7 +333,9 @@ class Review(models.Model):
         verbose_name = "Property Review"
         ordering = ["-created_at"]
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(
+        User, related_name="reviews", on_delete=models.CASCADE, null=True
+    )
     property = models.ForeignKey(
         Property,
         related_name="reviews",
@@ -358,8 +368,12 @@ class Booking(models.Model):
         ("rejected", "Rejected"),
         ("cancelled", "Cancelled"),
     ]
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, null=False, blank=False)
+    owner = models.ForeignKey(
+        User, related_name="bookings", on_delete=models.CASCADE, null=True
+    )
+    room = models.ForeignKey(
+        Room, related_name="bookings", on_delete=models.CASCADE, null=False, blank=False
+    )
     start_date = models.DateField(null=False, blank=False)
     end_date = models.DateField(null=False, blank=False)
     status = models.CharField(

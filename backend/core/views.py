@@ -8,7 +8,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
 from core.permissions import IsOwnerOrReadOnly
 from .serializers import (
     StudentSerializer,
@@ -32,6 +31,7 @@ from .models import (
     Booking,
     Room,
 )
+from utils.sendmail import sendmail
 
 
 class StudentViewSet(ModelViewSet):
@@ -131,7 +131,9 @@ class BookingViewSet(ModelViewSet):
         booking = None
         data = request.data
         room_id = request.data.get("room")
-        room = Room.objects.get(id=room_id)  # pylint: disable=no-member
+        room = Room.objects.select_related(  # pylint: disable=no-member
+            "property", "property__owner"
+        ).get(id=room_id)
         try:
 
             if room.is_available:
@@ -147,6 +149,21 @@ class BookingViewSet(ModelViewSet):
                     room.is_available = False
                 room.clean()
                 room.save()
+                sendmail(
+                    subject="Booking Confirmation",
+                    recipient_list=[request.user.email],
+                    message=f"Your booking has been confirmed for {room.name} at \
+                        {room.property.name} on {booking.start_date} to {booking.end_date}. \
+                        The property is located at {room.property.location}, {room.property.street}, \
+                        {room.property.number}. Thank you for using our service.",
+                )
+                sendmail(
+                    subject="Booking Confirmation",
+                    recipient_list=[room.property.owner.email],
+                    message=f"Your room ({room.name} at {room.property.name}) has been booked from \
+                        {booking.start_date} to {booking.end_date} by {request.user.first_name} \
+                        {request.user.last_name}.",
+                )
                 serializer = BookingSerializer(booking, context={"request": request})
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
@@ -160,7 +177,10 @@ class BookingViewSet(ModelViewSet):
         Override the destroy method to update the room availability.
         """
         instance = self.get_object()
-        room = instance.room
+        room_id = request.data.get("room")
+        room = Room.objects.select_related(  # pylint: disable=no-member
+            "property", "property__owner"
+        ).get(id=room_id)
         if instance.status not in ["pending", "approved"]:
             return Response(
                 {"detail": "Booking cannot be cancelled from its current state."},
@@ -175,6 +195,16 @@ class BookingViewSet(ModelViewSet):
             room.save()
             instance.status = "cancelled"
             instance.save()
+            sendmail(
+                subject="Booking Cancelled",
+                recipient_list=[instance.owner.email],
+                message=f"Your booking for {room.name} at {room.property.name} has been cancelled.",
+            )
+            sendmail(
+                subject="Booking Cancelled",
+                recipient_list=[room.property.owner.email],
+                message=f"Your room ({room.name} at {room.property.name}) has been cancelled.",
+            )
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
@@ -186,7 +216,10 @@ class BookingViewSet(ModelViewSet):
         """
         data = request.data
         instance = self.get_object()
-        room = instance.room
+        room_id = request.data.get("room")
+        room = Room.objects.select_related(  # pylint: disable=no-member
+            "property", "property__owner"
+        ).get(id=room_id)
         try:
             if data.get("status") in ["cancelled", "rejected"]:
                 room.occupied_beds -= 1
@@ -195,6 +228,21 @@ class BookingViewSet(ModelViewSet):
                     room.is_available = True
                 room.clean()
                 room.save()
+                instance.status = data["status"]
+                instance.save()
+                sendmail(
+                    subject="Booking Status",
+                    recipient_list=[instance.owner.email],
+                    message=f"Your booking for {room.name} at {room.property.name} \
+                        has been {data['status'].title()}.",
+                )
+                sendmail(
+                    subject="Booking Status",
+                    recipient_list=[room.property.owner.email],
+                    message=f"Your room ({room.name} at {room.property.name}) \
+                        has been {data['status'].title()}.",
+                )
+                return Response(status=status.HTTP_204_NO_CONTENT)
             return super().update(request, *args, **kwargs)
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
