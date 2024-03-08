@@ -436,23 +436,17 @@ class LandlordVerificationDocument(models.Model):
         ("utility_bill", "Utility Bill"),
     ]
 
-    landlord = models.ForeignKey(
-        Landlord,
-        related_name="landlord_verification_documents",
-        on_delete=models.CASCADE,
-        null=True,
-    )
     document_type = models.CharField(
         max_length=50, choices=DOCUMENT_TYPES, null=False, blank=False
     )
-    document = models.FileField(
+    document = models.ImageField(
         upload_to="landlord/verification_documents", null=False, blank=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.landlord} - {self.document_type}"
+        return f"{self.document_type}"
 
 
 class LandlordVerificationRequest(models.Model):
@@ -473,9 +467,24 @@ class LandlordVerificationRequest(models.Model):
     landlord = models.ForeignKey(
         Landlord, related_name="verification_requests", on_delete=models.CASCADE
     )
-    id_card = models.FileField(upload_to="landlord_verification_documents/")
-    title_deed = models.FileField(upload_to="landlord_verification_documents/")
-    utility_bill = models.FileField(upload_to="landlord_verification_documents/")
+    id_card = models.ForeignKey(
+        LandlordVerificationDocument,
+        related_name="id_card",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    title_deed = models.ForeignKey(
+        LandlordVerificationDocument,
+        related_name="title_deed",
+        on_delete=models.CASCADE,
+        null=False,
+    )
+    utility_bill = models.ForeignKey(
+        LandlordVerificationDocument,
+        related_name="utility_bill",
+        on_delete=models.CASCADE,
+        null=False,
+    )
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
