@@ -15,6 +15,8 @@ from .models import (
     Amenity,
     City,
     Review,
+    LandlordVerificationDocument,
+    LandlordVerificationRequest,
 )
 
 
@@ -85,6 +87,7 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
             "account_number",
             "ecocash_number",
             "is_verified",
+            "status",
         ]
 
     def create(self, validated_data):
@@ -103,6 +106,7 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
             "preferred_payment_method", instance.preferred_payment_method
         )
         instance.address = validated_data.get("address", instance.address)
+        instance.status = validated_data.get("status", instance.status)
         instance.bank_name = validated_data.get("bank_name", instance.bank_name)
         instance.account_name = validated_data.get(
             "account_name", instance.account_name
@@ -348,4 +352,47 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
             "comment",
             "created_at",
             "updated_at",
+        ]
+
+
+class LandlordVerificationDocumentSerializer(serializers.ModelSerializer):
+    """Landlord verification document serializer."""
+
+    landlord = serializers.HyperlinkedRelatedField(
+        write_only=True,
+        view_name="landlord-detail",
+        queryset=Landlord.objects.all(),  # pylint: disable=no-member
+    )
+
+    class Meta:
+        """Landlord verification document serializer."""
+
+        model = LandlordVerificationDocument
+        fields = ["id", "landlord", "document_type", "document"]
+
+
+class LandlordVerificationRequestSerializer(serializers.HyperlinkedModelSerializer):
+    """Landlord verification request serializer."""
+
+    landlord = serializers.HyperlinkedRelatedField(
+        view_name="landlord-detail",
+        queryset=Landlord.objects.all(),  # pylint: disable=no-member
+    )
+
+    id_card = LandlordVerificationDocumentSerializer()
+    title_deed = LandlordVerificationDocumentSerializer()
+    utility_bill = LandlordVerificationDocumentSerializer()
+
+    class Meta:
+        """Landlord verification request serializer."""
+
+        model = LandlordVerificationRequest
+        fields = [
+            "id",
+            "url",
+            "landlord",
+            "id_card",
+            "title_deed",
+            "utility_bill",
+            "status",
         ]

@@ -13,5 +13,6 @@ router.register(r"amenities", views.AmenityViewSet)
 router.register(r"bookings", views.BookingViewSet)
 router.register(r"reviews", views.ReviewViewSet)
 router.register(r"rooms", views.RoomViewSet)
+router.register(r"verification", views.LandlordVerificationRequestViewSet)
 
 urlpatterns = router.urls
