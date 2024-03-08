@@ -113,6 +113,62 @@ class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()  # pylint: disable=no-member
     serializer_class = ReviewSerializer
 
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to add the owner to the review.
+        """
+        data = request.data
+
+        if not request.user.is_student:
+            return Response(
+                {"detail": "Only students can leave reviews."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            property_ = Property.objects.get(  # pylint: disable=no-member
+                id=data["property"]
+            )
+
+            if Review.objects.filter(  # pylint: disable=no-member
+                owner=request.user, property=property_
+            ).exists():
+                return Response(
+                    {"detail": "You have already left a review for this property."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if not Booking.objects.filter(  # pylint: disable=no-member
+                owner=request.user, room__property=property_
+            ).exists():
+                return Response(
+                    {
+                        "detail": "You cannot review a property that you have not booked before."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            review = Review.objects.create(  # pylint: disable=no-member
+                owner=request.user,
+                property=property_,
+                comment=data["comment"],
+                rating=data["rating"],
+            )
+            return Response(
+                ReviewSerializer(review, context={"request": request}).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except Property.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Property does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {"detail": "Something went wrong."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 class BookingViewSet(ModelViewSet):
     """
@@ -171,6 +227,21 @@ class BookingViewSet(ModelViewSet):
             )
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+        except Room.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Room does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Property.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Property does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {"detail": "Something went wrong during the booking process."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -208,6 +279,21 @@ class BookingViewSet(ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+        except Room.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Room does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Property.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Property does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {"detail": "Something went wrong during the cancellation process."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
@@ -246,6 +332,21 @@ class BookingViewSet(ModelViewSet):
             return super().update(request, *args, **kwargs)
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+        except Room.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Room does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Property.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Property does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {"detail": "Something went wrong during the booking update process."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class RoomViewSet(ModelViewSet):

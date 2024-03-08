@@ -42,7 +42,6 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {"bookings": {"read_only": True}}
 
     def create(self, validated_data):
-        print(validated_data)
         user = validated_data.pop("user")
         student = Student.objects.create(  # pylint: disable=no-member
             user=user, **validated_data
@@ -350,37 +349,3 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
-
-    def create(self, validated_data):
-        """
-        Create a new review object using the validated data and return the created review.
-
-        Parameters:
-            validated_data: The validated data used to create the review.
-
-        Returns:
-            The created review object.
-        """
-        new_property = validated_data.pop("property")
-        owner = validated_data.pop("owner")
-        review = Review.objects.create(  # pylint: disable=no-member
-            property=new_property, owner=owner, **validated_data
-        )
-        return review
-
-    def update(self, instance, validated_data):
-        """
-        Updates the instance with the provided validated data.
-
-        :param instance: The instance to be updated
-        :param validated_data: The validated data to update the instance with
-        :return: The updated instance
-        """
-
-        instance.property = validated_data.get("property", instance.property)
-        instance.owner = validated_data.get("owner", instance.owner)
-        instance.rating = validated_data.get("rating", instance.rating)
-        instance.comment = validated_data.get("comment", instance.comment)
-        instance.updated_at = timezone.now()
-        instance.save()
-        return instance
