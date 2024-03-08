@@ -355,7 +355,7 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class LandlordVerificationDocumentSerializer(serializers.HyperlinkedModelSerializer):
+class LandlordVerificationDocumentSerializer(serializers.ModelSerializer):
     """Landlord verification document serializer."""
 
     landlord = serializers.HyperlinkedRelatedField(
@@ -368,7 +368,7 @@ class LandlordVerificationDocumentSerializer(serializers.HyperlinkedModelSeriali
         """Landlord verification document serializer."""
 
         model = LandlordVerificationDocument
-        fields = ["id", "url", "landlord", "document_type", "document"]
+        fields = ["id", "landlord", "document_type", "document"]
 
 
 class LandlordVerificationRequestSerializer(serializers.HyperlinkedModelSerializer):
