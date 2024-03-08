@@ -113,6 +113,51 @@ class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()  # pylint: disable=no-member
     serializer_class = ReviewSerializer
 
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to add the owner to the review.
+        """
+        data = request.data
+
+        if not request.user.is_student:
+            return Response(
+                {"detail": "Only students can leave reviews."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        property_ = Property.objects.get(  # pylint: disable=no-member
+            id=data["property"]
+        )
+
+        if Review.objects.filter(  # pylint: disable=no-member
+            owner=request.user, property=property_
+        ).exists():
+            return Response(
+                {"detail": "You have already left a review for this property."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not Booking.objects.filter(  # pylint: disable=no-member
+            owner=request.user, room__property=property_
+        ).exists():
+            return Response(
+                {
+                    "detail": "You cannot review a property that you have not booked before."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        review = Review.objects.create(  # pylint: disable=no-member
+            owner=request.user,
+            property=property_,
+            comment=data["comment"],
+            rating=data["rating"],
+        )
+        return Response(
+            ReviewSerializer(review, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
 
 class BookingViewSet(ModelViewSet):
     """
