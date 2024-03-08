@@ -42,7 +42,6 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {"bookings": {"read_only": True}}
 
     def create(self, validated_data):
-        print(validated_data)
         user = validated_data.pop("user")
         student = Student.objects.create(  # pylint: disable=no-member
             user=user, **validated_data
