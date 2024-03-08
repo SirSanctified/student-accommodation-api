@@ -5,7 +5,7 @@ set -o errexit
 set -o nounset
 
 worker_ready() {
-    python -m celery -A roomio inspect ping
+    celery -A student_accommodation inspect ping
 }
 
 until worker_ready; do
@@ -15,5 +15,6 @@ done
 >&2 echo 'Celery workers are available'
 
 python -m flower \
-    --app=roomio \
-    --broker="${CELERY_BROKER_URL}"
+    --app=student_accommodation \
+    --broker="${CELERY_BROKER_URL}"\
+    flower

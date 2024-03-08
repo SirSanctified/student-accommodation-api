@@ -8,19 +8,19 @@ USER root
 
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install python-watchdog -y
-
 RUN useradd -ms /bin/sh -u 1001 app
-
-USER app
 
 WORKDIR /app
 
-COPY --chown=app:app ./backend/requirements.txt requirements.txt
+COPY ./backend/requirements.txt requirements.txt
 
 RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
+
+RUN chown -R app:app /app
+
+USER app
 
 COPY --chown=app:app ./backend/docker/django/entrypoint.sh ./entrypoint.sh
 

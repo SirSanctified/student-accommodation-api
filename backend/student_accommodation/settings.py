@@ -178,7 +178,7 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:8080", "http://localhost:3000"]
 
 
 # EMAIL
-EMAIL_BACKEND = "djcelery_email.backends.email.CeleryEmailBackend"
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 EMAIL_USE_TLS = True
