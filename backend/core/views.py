@@ -74,6 +74,40 @@ class PropertyViewSet(ModelViewSet):
     queryset = Property.objects.all()  # pylint: disable=no-member
     serializer_class = PropertySerializer
 
+    def create(self, request, *args, **kwargs):
+        try:
+            landlord = Landlord.objects.get(  # pylint: disable=no-member
+                user=request.user
+            )
+            if not landlord.is_verified:
+                return Response(
+                    {"detail": "Your landlord account is not verified."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return super().create(request, *args, **kwargs)
+        except Landlord.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Landlord does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    def update(self, request, *args, **kwargs):
+        try:
+            landlord = Landlord.objects.get(  # pylint: disable=no-member
+                user=request.user
+            )
+            if not landlord.is_verified:
+                return Response(
+                    {"detail": "Your landlord account is not verified."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return super().update(request, *args, **kwargs)
+        except Landlord.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Landlord does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
 
 class CityViewSet(ModelViewSet):
     """
@@ -178,7 +212,7 @@ class BookingViewSet(ModelViewSet):
     A viewset for viewing and editing user instances.
     """
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     queryset = Booking.objects.all()  # pylint: disable=no-member
     serializer_class = BookingSerializer
 
@@ -190,11 +224,11 @@ class BookingViewSet(ModelViewSet):
         booking = None
         data = request.data
         room_id = request.data.get("room")
-        room = Room.objects.select_related(  # pylint: disable=no-member
-            "property", "property__owner"
-        ).get(id=room_id)
-        try:
 
+        try:
+            room = Room.objects.select_related(  # pylint: disable=no-member
+                "property", "property__owner"
+            ).get(id=room_id)
             if room.is_available:
                 booking = Booking.objects.create(  # pylint: disable=no-member
                     owner=request.user,
@@ -379,6 +413,23 @@ class RoomViewSet(ModelViewSet):
     queryset = Room.objects.all()  # pylint: disable=no-member
     serializer_class = RoomSerializer
 
+    def create(self, request, *args, **kwargs):
+        try:
+            landlord = Landlord.objects.get(  # pylint: disable=no-member
+                user=request.user
+            )
+            if not landlord.is_verified:
+                return Response(
+                    {"detail": "Your landlord account is not verified."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            return super().create(request, *args, **kwargs)
+        except Landlord.DoesNotExist:  # pylint: disable=no-member
+            return Response(
+                {"detail": "Landlord does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
 
 class LandlordVerificationRequestViewSet(ModelViewSet):
     """
@@ -479,6 +530,7 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
         try:
             if request.data["status"] == "approved":
                 instance.verify()
+                instance.landlord.is_verified = True
                 sendmail(
                     subject="Verification Request",
                     recipient_list=[instance.landlord.user.email],
