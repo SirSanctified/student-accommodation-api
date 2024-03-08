@@ -5,43 +5,6 @@ networks:
     driver: bridge
 
 services:
-  api:
-    container_name: api
-    image: sirsanctified/roomio-api:latest
-    build:
-      context: .
-      dockerfile: ./backend/docker/django/server.dockerfile
-    command: ./start.sh
-    volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/mediafiles
-    networks:
-      - student-accommodation
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - db
-    develop:
-      watch:
-        - path: ./backend
-          action: rebuild
-          target: /accounts
-          ignore:
-            - venv/
-        - path: ./backend
-          action: rebuild
-          target: /core
-          ignore:
-            - venv/
-        - path: ./backend
-          action: rebuild
-          target: /student_accommodation
-          ignore:
-            - venv/
-        - path: ./backend/requirement.txt
-          action: rebuild
-        
-
   client:
     container_name: client
     image: sirsanctified/roomio-client:latest
@@ -65,8 +28,44 @@ services:
           action: rebuild
         - path: ./client/package-lock.json
           action: sync
-        
 
+  api:
+    container_name: api
+    image: sirsanctified/roomio-api:latest
+    build:
+      context: .
+      dockerfile: ./backend/docker/django/server.dockerfile
+    command: ./start.sh
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
+    develop:
+      watch:
+        - path: ./backend
+          action: rebuild
+          target: /accounts
+          ignore:
+            - venv/
+        - path: ./backend
+          action: rebuild
+          target: /core
+          ignore:
+            - venv/
+        - path: ./backend
+          action: rebuild
+          target: /student_accommodation
+          ignore:
+            - venv/
+        - path: ./backend/requirement.txt
+          action: rebuild
+        
   db:
     container_name: db
     image: postgres
@@ -89,6 +88,49 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
+      - db
+    
+  redis:
+    container_name: redis
+    image: redis:7.2.4-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - student-accommodation
+    
+  celery_worker:
+    container_name: celery_worker
+    build:
+      context: .
+      dockerfile: ./backend/docker/django/server.dockerfile
+
+    command: ./start-celeryworker.sh
+    volumes:
+      - .:/app
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
+
+  flower:
+    container_name: flower
+    build:
+      context: .
+      dockerfile: ./backend/docker/django/server.dockerfile
+    command: ./start-flower.sh
+    ports:
+      - "5555:5555"
+    volumes:
+      - .:/app
+    networks:
+      - student-accommodation
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
       - db
 
   nginx:

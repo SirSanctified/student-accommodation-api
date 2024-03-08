@@ -40,4 +40,16 @@ RUN mkdir -p /app/mediafiles && chown -R app:app /app/mediafiles && chmod -R 755
 
 EXPOSE 8000
 
+COPY ./backend/docker/django/celery/worker/start-celeryworker.sh ./start-celeryworker.sh
+
+RUN sed -i 's/\r$//g' ./start-celeryworker.sh
+
+RUN chmod +x ./start-celeryworker.sh
+
+COPY ./backend/docker/django/celery/flower/start-flower.sh ./start-flower.sh
+
+RUN sed -i 's/\r$//g' ./start-flower.sh
+
+RUN chmod +x ./start-flower.sh
+
 ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]
