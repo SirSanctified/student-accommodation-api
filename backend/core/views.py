@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
 from core.permissions import IsOwnerOrReadOnly
+from utils.sendmail import sendmail
 from .serializers import (
     StudentSerializer,
     LandlordSerializer,
@@ -19,6 +20,7 @@ from .serializers import (
     BookingSerializer,
     InstitutionSerializer,
     RoomSerializer,
+    LandlordVerificationRequestSerializer,
 )
 from .models import (
     Student,
@@ -30,8 +32,9 @@ from .models import (
     Review,
     Booking,
     Room,
+    LandlordVerificationRequest,
+    LandlordVerificationDocument,
 )
-from utils.sendmail import sendmail
 
 
 class StudentViewSet(ModelViewSet):
@@ -375,3 +378,153 @@ class RoomViewSet(ModelViewSet):
     ]
     queryset = Room.objects.all()  # pylint: disable=no-member
     serializer_class = RoomSerializer
+
+
+class LandlordVerificationRequestViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing landlord verification request.
+    """
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = LandlordVerificationRequestSerializer
+    queryset = LandlordVerificationRequest.objects.all()  # pylint: disable=no-member
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to add the owner to the request.
+        """
+        data = request.data
+
+        if not request.user.is_landlord:
+            return Response(
+                {"detail": "Only landlords can submit verification requests."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            landlord = Landlord.objects.get(  # pylint: disable=no-member
+                user=request.user
+            )
+            if LandlordVerificationRequest.objects.filter(  # pylint: disable=no-member
+                landlord=landlord, status="pending"
+            ).exists():
+                return Response(
+                    {"detail": "You have already submitted a verification request."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            id_card = LandlordVerificationDocument.objects.create(  # pylint: disable=no-member
+                document_type="id_card",
+                document=data["id_card"],
+                landlord=landlord,
+            )
+            title_deed = LandlordVerificationDocument.objects.create(  # pylint: disable=no-member
+                document_type="title_deed",
+                document=data["title_deed"],
+                landlord=landlord,
+            )
+            utility_bill = LandlordVerificationDocument.objects.create(  # pylint: disable=no-member
+                document_type="utility_bill",
+                document=data["utility_bill"],
+                landlord=landlord,
+            )
+            request_ = (
+                LandlordVerificationRequest.objects.create(  # pylint: disable=no-member
+                    landlord=landlord,
+                    id_card=id_card,
+                    title_deed=title_deed,
+                    utility_bill=utility_bill,
+                )
+            )
+            request_.save()
+            sendmail(
+                subject="Verification Request",
+                recipient_list=[request.user.email],
+                message=f"""
+                Dear {request.user.first_name},
+
+                Your verification request has been submitted successfully. Our team will \
+                get back to you shortly.
+
+                Best regards,
+                Roomio Team
+                """,
+            )
+            return Response(
+                {"detail": "Verification request submitted successfully."},
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {
+                    "detail": "Something went wrong during the verification \
+                    request submission process."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    def update(self, request, *args, **kwargs):
+        """
+        Override the update method to add the owner to the request.
+        """
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "Only staff can update verification requests."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        instance = self.get_object()
+        try:
+            if request.data["status"] == "approved":
+                instance.verify()
+                sendmail(
+                    subject="Verification Request",
+                    recipient_list=[request.landlord.user.email],
+                    message=f"""
+                    Dear {request.landlord.user.first_name},
+
+                    Your verification request has been approved. You can now \
+                    proceed to your dashboard and start publishing your rooms and\
+                    properties.
+
+                    Best regards,
+                    Roomio Team
+                    """,
+                )
+                return Response(
+                    {"detail": "Verification request approved successfully."},
+                    status=status.HTTP_200_OK,
+                )
+            elif request.data["status"] == "rejected":
+                instance.reject()
+                sendmail(
+                    subject="Verification Request",
+                    recipient_list=[request.landlord.user.email],
+                    message=f"""
+                    Dear {request.landlord.user.first_name},
+
+                    Your verification request has not been approved. If you think \
+                    this was an error, please contact us.
+
+                    Best regards,
+                    Roomio Team
+                    """,
+                )
+                return Response(
+                    {"detail": "Verification request rejected successfully."},
+                    status=status.HTTP_200_OK,
+                )
+
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception:  # pylint: disable=broad-except
+            return Response(
+                {
+                    "detail": "Something went wrong during the verification \
+                    request update process."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
