@@ -22,18 +22,21 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "django.contrib.contenttypes",
     "django.contrib.admin",
     "django.contrib.auth",
-    "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # my apps
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
+    # third party apps
     "rest_framework",
     "drf_yasg",
     "corsheaders",
     "django_filters",
+    "djcelery_email",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
 ]
@@ -182,3 +185,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "info@roomio.co.zw"
+
+# CELERY
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND_URL")
+CELERY_TIMEZONE = "Africa/Harare"
