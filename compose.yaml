@@ -105,8 +105,6 @@ services:
       dockerfile: ./backend/docker/django/server.dockerfile
 
     command: ./start-celeryworker.sh
-    volumes:
-      - .:/app
     networks:
       - student-accommodation
     env_file:
@@ -123,8 +121,6 @@ services:
     command: ./start-flower.sh
     ports:
       - "5555:5555"
-    volumes:
-      - .:/app
     networks:
       - student-accommodation
     env_file:

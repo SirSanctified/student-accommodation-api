@@ -8,6 +8,8 @@ USER root
 
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get install python-watchdog -y
+
 RUN useradd -ms /bin/sh -u 1001 app
 
 USER app
