@@ -2,8 +2,10 @@
 
 import os
 from django.core.mail import send_mail
+from celery import shared_task
 
 
+@shared_task
 def sendmail(subject, message, recipient_list):
     """Sends an email to the specified recipient list."""
     from_email = (os.getenv("DEFAULT_FROM_EMAIL"),)
