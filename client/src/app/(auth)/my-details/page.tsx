@@ -73,7 +73,6 @@ const MyDetails = () => {
         });
 
         citiesResponse.data.forEach((city) => {
-          console.log(city);
           const newOption: ComboboxOption = {
             label: city.name,
             value: city.url ?? city.id.toString(),
