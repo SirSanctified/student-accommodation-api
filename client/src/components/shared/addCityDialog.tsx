@@ -25,7 +25,7 @@ export function AddCity({
     if (city) {
       try {
         const response = await axios.post<InstitutionAndCityResponse>(
-          "http://localhost:8000/api/cities/",
+          `${process.env.NEXT_PUBLIC_API_URL}/cities/`,
           {
             name: city,
           },
