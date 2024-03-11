@@ -55,27 +55,41 @@ export type City = {
   url?: string;
 };
 
+export type PropertyType =
+  | "boarding house"
+  | "hostel"
+  | "house"
+  | "apartment"
+  | "cottage";
+
 export type Property = {
   url?: string;
-  id: string;
-  landlord: string;
+  id?: string;
   owner: string;
   name: string;
-  images?: string[];
-  description: string;
   city: City;
   location: string;
   street: string;
   number: string;
-  total_rooms: number;
-  rooms_single: number;
-  price_single: number;
-  price_shared: string;
-  amenities: string;
-  reviews: string;
+  property_type: PropertyType;
+  amenities?: string[];
+  reviews?: [];
   is_published: boolean;
-  created_at: string;
-  updated_at: string;
+};
+
+export type Room = {
+  property: Property | string;
+  name: string;
+  description: string;
+  room_type: string;
+  num_beds: number;
+  occupied_beds: number;
+  available_beds: number;
+  price: number;
+  is_available: boolean;
+  display_image: string;
+  url?: string;
+  images?: [];
 };
 
 export type PropertyFormProps = {
