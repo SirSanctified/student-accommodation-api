@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -50,7 +49,7 @@ export function ComboBoxResponsive({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="h-full w-full p-0" align="start">
           <OptionList
             setOpen={setOpen}
             setSelectedOption={setSelectedOption}
@@ -73,7 +72,7 @@ export function ComboBoxResponsive({
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <div className="mt-4 border-t">
+        <div className="mt-4 h-full w-full border-t">
           <OptionList
             options={options}
             setOpen={setOpen}
@@ -98,18 +97,12 @@ function OptionList({
   commandEmpty?: ReactNode;
 }) {
   return (
-    <Command>
+    <Command className="!h-full">
       <CommandInput
         placeholder="Filter status..."
         className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
       />
-      <CommandList>
-        {commandEmpty && (
-          <CommandEmpty>
-            <p className="mb-4 text-sm text-indigo-950">No options found</p>
-            {commandEmpty}
-          </CommandEmpty>
-        )}
+      <CommandList className="!h-full">
         <CommandGroup>
           {options.map((option) => (
             <CommandItem
@@ -127,6 +120,7 @@ function OptionList({
             </CommandItem>
           ))}
         </CommandGroup>
+        <CommandItem>{commandEmpty}</CommandItem>
       </CommandList>
     </Command>
   );

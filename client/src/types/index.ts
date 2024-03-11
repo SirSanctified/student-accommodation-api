@@ -1,5 +1,6 @@
 export type RegisterType = {
   email: string;
+  phone: string;
   password: string;
   password2: string;
   first_name: string;
@@ -11,6 +12,12 @@ export type LoginType = {
   password: string;
 };
 
+export type PreferredPaymentMethods =
+  | "ecocash usd"
+  | "bank transfer"
+  | "cash usd"
+  | "other";
+
 export type User = {
   id?: string;
   first_name: string;
@@ -18,6 +25,18 @@ export type User = {
   email: string;
   is_student: boolean;
   is_landlord: boolean;
+};
+
+export type Landlord = {
+  user: User | string;
+  city: string;
+  address: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  ecocash_number: string;
+  preferred_payment_method: PreferredPaymentMethods;
+  is_verified?: boolean;
 };
 
 export type AuthState = {

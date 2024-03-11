@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/store";
 import type { User } from "@/types";
 import axios from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -30,7 +29,7 @@ export default function SignInPage() {
 
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/auth/login/`,
+        `http://localhost:8080/api/auth/login/`,
         {
           email,
           password,
@@ -62,16 +61,9 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="h-full w-full px-4 py-8 text-indigo-950">
-      <Image
-        src="/logo.png"
-        alt="logo"
-        width={100}
-        height={100}
-        className="mx-auto mb-4"
-      />
-      <h1 className="mb-8 text-center text-3xl font-bold">Sign In</h1>
-      <form className="flex flex-col gap-4" onSubmit={submitForm}>
+    <main className="flex w-full flex-1 flex-col items-center justify-center px-4 py-8 text-indigo-950">
+      <h1 className="mb-8 w-full text-start text-3xl font-bold">Sign In</h1>
+      <form className="flex w-full flex-col gap-4" onSubmit={submitForm}>
         <Input placeholder="Email" type="email" name="email" />
         <Input placeholder="Password" type="password" name="password" />
         <Button type="submit">{isLoading ? "Signing in..." : "Signin"}</Button>
@@ -79,7 +71,7 @@ export default function SignInPage() {
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
-            className="text-indigo-500 hover:text-indigo-800"
+            className="text-xl font-bold text-blue-800 hover:text-indigo-800"
           >
             Sign up
           </Link>

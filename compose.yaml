@@ -78,18 +78,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/
 
-  pgadmin:
-    container_name: pgadmin
-    image: fenglc/pgadmin4
-    ports:
-      - "5050:5050"
-    networks:
-      - student-accommodation
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - db
-    
   redis:
     container_name: redis
     image: redis:7.2.4-alpine

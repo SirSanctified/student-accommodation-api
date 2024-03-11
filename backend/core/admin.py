@@ -9,6 +9,9 @@ from .models import (
     Amenity,
     Review,
     Booking,
+    LandlordVerificationDocument,
+    LandlordVerificationRequest,
+    Room,
 )
 
 
@@ -88,4 +91,32 @@ class InstitutionModelAdmin(admin.ModelAdmin):
 @admin.register(Amenity)
 class AmenityModelAdmin(admin.ModelAdmin):
     list_display = ["name"]
+    list_per_page = 25
+
+
+@admin.register(LandlordVerificationDocument)
+class LandlordVerificationDocumentModelAdmin(admin.ModelAdmin):
+    list_display = ["landlord", "document_type"]
+    list_filter = ["landlord", "document_type"]
+    list_per_page = 25
+
+
+@admin.register(LandlordVerificationRequest)
+class LandlordVerificationRequestModelAdmin(admin.ModelAdmin):
+    list_display = ["landlord", "status"]
+    list_filter = ["landlord", "status"]
+    list_per_page = 25
+
+
+@admin.register(Room)
+class RoomModelAdmin(admin.ModelAdmin):
+    list_display = [
+        "property",
+        "room_type",
+        "name",
+        "is_available",
+        "num_beds",
+        "price",
+    ]
+    list_filter = ["property", "room_type"]
     list_per_page = 25
