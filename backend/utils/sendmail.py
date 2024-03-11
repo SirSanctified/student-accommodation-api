@@ -8,9 +8,9 @@ from celery import shared_task
 @shared_task
 def sendmail(subject, message, recipient_list):
     """Sends an email to the specified recipient list."""
-    from_email = (os.getenv("DEFAULT_FROM_EMAIL"),)
-    auth_password = (os.getenv("EMAIL_HOST_PASSWORD"),)
-    auth_user = (os.getenv("EMAIL_HOST_USER"),)
+    from_email = os.getenv("DEFAULT_FROM_EMAIL")
+    auth_password = os.getenv("EMAIL_HOST_PASSWORD")
+    auth_user = os.getenv("EMAIL_HOST_USER")
     send_mail(
         subject,
         message,

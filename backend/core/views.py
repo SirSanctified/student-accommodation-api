@@ -506,6 +506,16 @@ class RoomViewSet(ModelViewSet):
                 {"detail": "Landlord does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        except ValidationError as e:
+            return Response(
+                {"detail": str(e).strip("['").strip("']")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            return Response(
+                e.args[0].detail if hasattr(e.args[0], "detail") else e.args[0],
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class LandlordVerificationRequestViewSet(ModelViewSet):
@@ -606,8 +616,14 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
         instance = self.get_object()
         try:
             if request.data["status"] == "approved":
+                if instance.status == "approved":
+                    return Response(
+                        {"detail": "Verification request already approved."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 instance.verify()
                 instance.landlord.is_verified = True
+                instance.landlord.save()
                 sendmail.delay(
                     subject="Verification Request",
                     recipient_list=[instance.landlord.user.email],
@@ -627,7 +643,14 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
             elif request.data["status"] == "rejected":
+                if instance.status == "rejected":
+                    return Response(
+                        {"detail": "Verification request already rejected."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 instance.reject()
+                instance.landlord.is_verified = False
+                instance.landlord.save()
                 sendmail.delay(
                     subject="Verification Request",
                     recipient_list=[instance.landlord.user.email],
