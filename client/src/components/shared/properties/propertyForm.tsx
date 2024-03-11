@@ -72,6 +72,29 @@ const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
             return prev;
           });
         });
+        if (action === "Update") {
+          const city = response.data.find(
+            (city) => city.url === propertyData?.city,
+          );
+          const defaultAmenities = amenityResponse.data.filter((amenity) =>
+            propertyData?.amenities?.includes(amenity.id.toString()),
+          );
+
+          if (city) {
+            setSelectedCity({
+              label: city.name,
+              value: city.url ?? city.id.toString(),
+            });
+          }
+          if (defaultAmenities) {
+            setSelectedAmenities(
+              defaultAmenities.map((amenity) => ({
+                label: amenity.name,
+                value: amenity.id.toString(),
+              })),
+            );
+          }
+        }
       } catch (error) {
         setCities([]);
         setAmenities([]);
@@ -81,7 +104,7 @@ const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
     fetchCities().catch(() => {
       // do nothing
     });
-  }, []);
+  }, [action, propertyData]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
