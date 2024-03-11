@@ -41,7 +41,6 @@ const MyDetails = () => {
   const [bankName, setBankName] = useState<string>("");
   const [preferredPaymentMethod, setPreferredPaymentMethod] =
     useState<PreferredPaymentMethods>("ecocash usd");
-  const [city, setCity] = useState<ComboboxOption | null>(null);
   const [avatar, setAvatar] = useState<string>("");
   const [role, setRole] = useState<string>("");
   const { isAuthenticated, user } = useAuthStore();
@@ -209,7 +208,7 @@ const MyDetails = () => {
           <>
             <ComboBoxResponsive
               options={cities}
-              commandEmpty={<AddCity setSelectedOption={setCity} />}
+              commandEmpty={<AddCity setSelectedOption={setSelectedCity} />}
               selectedOption={selectedCity}
               setSelectedOption={setSelectedCity}
               placeholder="Where do you live?"
