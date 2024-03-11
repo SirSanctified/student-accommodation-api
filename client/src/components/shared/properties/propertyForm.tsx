@@ -1,14 +1,13 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   type ComboboxOption,
   type InstitutionAndCityResponse,
   type PropertyFormProps,
   type PropertyType,
 } from "@/types";
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { ComboBoxResponsive } from "../combobox";
 import {
   Select as SelectComponent,
@@ -21,6 +20,7 @@ import axios from "axios";
 import Select from "react-select";
 import { Button } from "@/components/ui/button";
 import { AddCity } from "../addCityDialog";
+import { toast } from "sonner";
 
 const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
   const [name, setName] = useState(propertyData?.name ?? "");
@@ -31,9 +31,6 @@ const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
   const [selectedCity, setSelectedCity] = useState<ComboboxOption | null>(null);
   const [propertyType, setPropertyType] = useState(
     propertyData?.property_type ?? "boarding house",
-  );
-  const [isPublished, setIsPublished] = useState(
-    propertyData?.is_published ?? false,
   );
   const [amenities, setAmenities] = useState<ComboboxOption[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<ComboboxOption[]>(
@@ -51,36 +48,33 @@ const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
             `${process.env.NEXT_PUBLIC_API_URL}/amenities/`,
           ),
         ]);
-        if (response.status === 200) {
-          response.data.forEach((city) => {
-            const newOption: ComboboxOption = {
-              label: city.name,
-              value: city.id.toString(),
-            };
-            setCities((prev) => {
-              if (!prev.some((option) => option.value === newOption.value)) {
-                return [...prev, newOption];
-              }
-              return prev;
-            });
+        response.data.forEach((city) => {
+          const newOption: ComboboxOption = {
+            label: city.name,
+            value: city.url ?? city.id.toString(),
+          };
+          setCities((prev) => {
+            if (!prev.some((option) => option.value === newOption.value)) {
+              return [...prev, newOption];
+            }
+            return prev;
           });
-        }
-        if (amenityResponse.status === 200) {
-          amenityResponse.data.forEach((amenity) => {
-            const newOption: ComboboxOption = {
-              label: amenity.name,
-              value: amenity.id.toString(),
-            };
-            setAmenities((prev) => {
-              if (!prev.some((option) => option.value === newOption.value)) {
-                return [...prev, newOption];
-              }
-              return prev;
-            });
+        });
+        amenityResponse.data.forEach((amenity) => {
+          const newOption: ComboboxOption = {
+            label: amenity.name,
+            value: amenity.id.toString(),
+          };
+          setAmenities((prev) => {
+            if (!prev.some((option) => option.value === newOption.value)) {
+              return [...prev, newOption];
+            }
+            return prev;
           });
-        }
+        });
       } catch (error) {
         setCities([]);
+        setAmenities([]);
       }
     }
 
@@ -89,8 +83,36 @@ const PropertyForm = ({ action, propertyData }: PropertyFormProps) => {
     });
   }, []);
 
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = {
+      name,
+      location,
+      street,
+      number,
+      city: selectedCity?.value,
+      property_type: propertyType,
+      is_published: true,
+      amenities: selectedAmenities.map((amenity) => Number(amenity.value)),
+    };
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/`,
+        data,
+        {
+          withCredentials: true,
+        },
+      );
+      if (response.status === 201) {
+        toast.success("Property created successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to create property");
+    }
+  }
+
   return (
-    <form className="flex w-full flex-col space-y-4">
+    <form className="flex w-full flex-col space-y-8" onSubmit={handleSubmit}>
       <legend className="sr-only">{action} Property</legend>
       <div className="flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
         <Input
