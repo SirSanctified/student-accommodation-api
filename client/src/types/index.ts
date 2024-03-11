@@ -27,6 +27,18 @@ export type User = {
   is_landlord: boolean;
 };
 
+export type Landlord = {
+  user: User | string;
+  city: string;
+  address: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  ecocash_number: string;
+  preferred_payment_method: PreferredPaymentMethods;
+  is_verified?: boolean;
+};
+
 export type AuthState = {
   user: User | null;
   isAuthenticated: boolean;

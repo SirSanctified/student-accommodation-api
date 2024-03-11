@@ -16,6 +16,7 @@ import { useAuthStore } from "@/store/store";
 import type {
   ComboboxOption,
   InstitutionAndCityResponse,
+  Landlord,
   PreferredPaymentMethods,
 } from "@/types";
 import axios from "axios";
@@ -113,7 +114,7 @@ const MyDetails = () => {
       is_student: role === "student",
       is_landlord: role === "landlord",
     };
-
+    let isVerified = false;
     try {
       if (userRoleData.is_student) {
         await axios.post(
@@ -129,7 +130,7 @@ const MyDetails = () => {
           },
         );
       } else if (userRoleData.is_landlord) {
-        await axios.post(
+        const landlord = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/landlords/`,
           {
             user: userRoleData.user,
@@ -145,11 +146,15 @@ const MyDetails = () => {
             withCredentials: true,
           },
         );
+        isVerified = (landlord.data as Landlord)?.is_verified ?? false;
       }
 
       toast.success("Successfully updated");
-
-      router.push("/");
+      if (userRoleData.is_student) {
+        router.push("/");
+      } else if (userRoleData.is_landlord && !isVerified) {
+        router.push("/verification");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong",
