@@ -64,18 +64,59 @@ class LandlordViewSet(ModelViewSet):
             if request.user.is_staff:
                 if request.data["status"] == "banned":
                     landlord.ban()
+                    sendmail.delay(
+                        subject="Landlord Account Banned",
+                        recipient_list=[landlord.user.email],
+                        message=f"""
+                        Dear {landlord.user.first_name},
+
+                        Your landlord account has been banned. You won't be able to \
+                        publish rooms and properties anymore. If you think this was \
+                        an error, please contact us.
+
+                        Best regards,
+                        Roomio Team
+                        """,
+                    )
                     return Response(
                         {"detail": "Landlord account has been banned."},
                         status=status.HTTP_200_OK,
                     )
                 if request.data["status"] == "active":
                     landlord.activate()
+                    sendmail.delay(
+                        subject="Landlord Account Activated",
+                        recipient_list=[landlord.user.email],
+                        message=f"""
+                        Dear {landlord.user.first_name},
+
+                        Your landlord account has been activated. You can now publish \
+                        rooms and properties.
+
+                        Best regards,
+                        Roomio Team
+                        """,
+                    )
                     return Response(
                         {"detail": "Landlord account has been activated."},
                         status=status.HTTP_200_OK,
                     )
                 if request.data["status"] == "suspended":
                     landlord.suspend()
+                    sendmail.delay(
+                        subject="Landlord Account Suspended",
+                        recipient_list=[landlord.user.email],
+                        message=f"""
+                        Dear {landlord.user.first_name},
+
+                        Your landlord account has been suspended. You won't be able to \
+                        publish rooms and properties until the suspension is lifted. If you think this was \
+                        an error, please contact us.
+
+                        Best regards,
+                        Roomio Team
+                        """,
+                    )
                     return Response(
                         {"detail": "Landlord account has been suspended."},
                         status=status.HTTP_200_OK,
@@ -106,6 +147,11 @@ class PropertyViewSet(ModelViewSet):
     serializer_class = PropertySerializer
 
     def create(self, request, *args, **kwargs):
+        if not request.user.is_landlord:
+            return Response(
+                {"detail": "Only landlord can create property."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         try:
             landlord = Landlord.objects.get(  # pylint: disable=no-member
                 user=request.user
@@ -273,7 +319,7 @@ class BookingViewSet(ModelViewSet):
                     room.is_available = False
                 room.clean()
                 room.save()
-                sendmail(
+                sendmail.delay(
                     subject="Booking Confirmation",
                     recipient_list=[request.user.email],
                     message=f"Your booking has been confirmed for {room.name} at \
@@ -281,7 +327,7 @@ class BookingViewSet(ModelViewSet):
                         The property is located at {room.property.location}, {room.property.street}, \
                         {room.property.number}. Thank you for using our service.",
                 )
-                sendmail(
+                sendmail.delay(
                     subject="Booking Confirmation",
                     recipient_list=[room.property.owner.email],
                     message=f"Your room ({room.name} at {room.property.name}) has been booked from \
@@ -334,12 +380,12 @@ class BookingViewSet(ModelViewSet):
             room.save()
             instance.status = "cancelled"
             instance.save()
-            sendmail(
+            sendmail.delay(
                 subject="Booking Cancelled",
                 recipient_list=[instance.owner.email],
                 message=f"Your booking for {room.name} at {room.property.name} has been cancelled.",
             )
-            sendmail(
+            sendmail.delay(
                 subject="Booking Cancelled",
                 recipient_list=[room.property.owner.email],
                 message=f"Your room ({room.name} at {room.property.name}) has been cancelled.",
@@ -384,13 +430,13 @@ class BookingViewSet(ModelViewSet):
                 room.save()
                 instance.status = data["status"]
                 instance.save()
-                sendmail(
+                sendmail.delay(
                     subject="Booking Status",
                     recipient_list=[instance.owner.email],
                     message=f"Your booking for {room.name} at {room.property.name} \
                         has been {data['status'].title()}.",
                 )
-                sendmail(
+                sendmail.delay(
                     subject="Booking Status",
                     recipient_list=[room.property.owner.email],
                     message=f"Your room ({room.name} at {room.property.name}) \
@@ -460,6 +506,16 @@ class RoomViewSet(ModelViewSet):
                 {"detail": "Landlord does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        except ValidationError as e:
+            return Response(
+                {"detail": str(e).strip("['").strip("']")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            return Response(
+                e.args[0].detail if hasattr(e.args[0], "detail") else e.args[0],
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class LandlordVerificationRequestViewSet(ModelViewSet):
@@ -519,7 +575,7 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                 )
             )
             request_.save()
-            sendmail(
+            sendmail.delay(
                 subject="Verification Request",
                 recipient_list=[request.user.email],
                 message=f"""
@@ -560,9 +616,15 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
         instance = self.get_object()
         try:
             if request.data["status"] == "approved":
+                if instance.status == "approved":
+                    return Response(
+                        {"detail": "Verification request already approved."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 instance.verify()
                 instance.landlord.is_verified = True
-                sendmail(
+                instance.landlord.save()
+                sendmail.delay(
                     subject="Verification Request",
                     recipient_list=[instance.landlord.user.email],
                     message=f"""
@@ -581,8 +643,15 @@ class LandlordVerificationRequestViewSet(ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
             elif request.data["status"] == "rejected":
+                if instance.status == "rejected":
+                    return Response(
+                        {"detail": "Verification request already rejected."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 instance.reject()
-                sendmail(
+                instance.landlord.is_verified = False
+                instance.landlord.save()
+                sendmail.delay(
                     subject="Verification Request",
                     recipient_list=[instance.landlord.user.email],
                     message=f"""

@@ -4,6 +4,7 @@ Serializers for the core app.
 
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from .models import (
     Student,
     Landlord,
@@ -280,12 +281,27 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         images_data = validated_data.pop("images", [])
-        room = Room.objects.create(**validated_data)  # pylint: disable=no-member
-        for image_data in images_data:
-            RoomImage.objects.create(  # pylint: disable=no-member
-                room=room, **image_data
+        property_ = validated_data.pop("property")
+        name = validated_data.pop("name")
+        if Room.objects.filter(  # pylint: disable=no-member
+            property=property_, name=name
+        ).exists():
+            raise serializers.ValidationError(
+                "Room with same name already exists in this property"
             )
-        return room
+        try:
+            room = Room.objects.create(  # pylint: disable=no-member
+                property=property_, name=name, **validated_data
+            )
+            for image_data in images_data:
+                RoomImage.objects.create(  # pylint: disable=no-member
+                    room=room, **image_data
+                )
+            return room
+        except ValidationError as e:
+            raise serializers.ValidationError(str(e.detail))
+        except Exception as e:  # pylint: disable=broad-except
+            raise e
 
     def update(self, instance, validated_data):
         instance.property = validated_data.get("property", instance.property)

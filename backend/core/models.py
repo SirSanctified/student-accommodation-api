@@ -180,6 +180,7 @@ class Room(models.Model):
         verbose_name_plural = "Rooms"
         verbose_name = "Room"
         ordering = ["-created_at"]
+        unique_together = (("property", "name"),)
 
     ROOM_TYPES = [
         ("single", "Single"),
@@ -222,7 +223,6 @@ class Room(models.Model):
         null=False,
         blank=False,
         default=0,
-        validators=[MinValueValidator(1)],
     )
     is_available = models.BooleanField(default=True)
     display_image = models.ImageField(
@@ -235,6 +235,7 @@ class Room(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        self.clean()
         if not self.pk and self.occupied_beds == 0:
             self.available_beds = self.num_beds
         else:
@@ -252,29 +253,19 @@ class Room(models.Model):
         """
         if self.occupied_beds > self.num_beds:
             raise ValidationError(
-                {
-                    "occupied_beds": "Occupied beds cannot exceed the total number of beds."
-                }
+                "Occupied beds cannot exceed the total number of beds."
             )
         if self.available_beds > self.num_beds:
             raise ValidationError(
-                {
-                    "available_beds": "Available beds cannot exceed the total number of beds."
-                }
+                "Available beds cannot exceed the total number of beds."
             )
         if self.available_beds + self.occupied_beds > self.num_beds:
             raise ValidationError(
-                {
-                    "available_beds": "Available and occupied beds (sum) cannot exceed the \
-                        total number of beds."
-                }
+                "Available and occupied beds (sum) cannot exceed the total number of beds."
             )
         if self.occupied_beds + self.available_beds != self.num_beds:
             raise ValidationError(
-                {
-                    "occupied_beds": "Occupied and available beds (sum) must equal the total \
-                        number of beds."
-                }
+                "Occupied and available beds (sum) must equal the total number of beds."
             )
 
     def __str__(self):
