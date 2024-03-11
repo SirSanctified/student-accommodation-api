@@ -1,5 +1,4 @@
 import PropertyForm from "@/components/shared/properties/propertyForm";
-
 const CreatePropertyPage = () => {
   return (
     <div className="w-full">
