@@ -101,7 +101,7 @@ const MyDetails = () => {
     event.preventDefault();
     const userRoleData = {
       user: `http://localhost/api/auth/users/${user?.id}/`,
-      institution: `http://localhost/api/institutions/${selectedInstitution?.value}/`,
+      institution: selectedInstitution?.value,
       city: selectedCity?.value,
       registration_number: registrationNumber,
       address: address,
