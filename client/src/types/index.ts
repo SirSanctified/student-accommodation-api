@@ -1,5 +1,6 @@
 export type RegisterType = {
   email: string;
+  phone: string;
   password: string;
   password2: string;
   first_name: string;
@@ -10,6 +11,12 @@ export type LoginType = {
   email: string;
   password: string;
 };
+
+export type PreferredPaymentMethods =
+  | "ecocash usd"
+  | "bank transfer"
+  | "cash usd"
+  | "other";
 
 export type User = {
   id?: string;
