@@ -167,6 +167,25 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
+class AmenitySerializer(serializers.HyperlinkedModelSerializer):
+    """Amenity serializer."""
+
+    class Meta:
+        """Amenity serializer."""
+
+        model = Amenity
+        fields = ["id", "url", "name"]
+
+    def create(self, validated_data):
+        amenity = Amenity.objects.create(**validated_data)  # pylint: disable=no-member
+        return amenity
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.save()
+        return instance
+
+
 class PropertySerializer(serializers.HyperlinkedModelSerializer):
     """Property serializer."""
 
@@ -175,10 +194,7 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
     reviews = serializers.HyperlinkedRelatedField(
         view_name="review-detail", read_only=True, many=True
     )
-
-    amenities = serializers.PrimaryKeyRelatedField(
-        queryset=Amenity.objects.all(), many=True  # pylint: disable=no-member
-    )
+    amenities = AmenitySerializer(many=True, required=False)
 
     class Meta:
         """Property serializer."""
@@ -200,7 +216,6 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
-        extra_kwargs = {"reviews": {"read_only": True}}
 
     def create(self, validated_data):
         amenities = validated_data.pop("amenities")
@@ -317,25 +332,6 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
             "display_image", instance.display_image
         )
         instance.updated_at = timezone.now()
-        instance.save()
-        return instance
-
-
-class AmenitySerializer(serializers.HyperlinkedModelSerializer):
-    """Amenity serializer."""
-
-    class Meta:
-        """Amenity serializer."""
-
-        model = Amenity
-        fields = ["id", "url", "name"]
-
-    def create(self, validated_data):
-        amenity = Amenity.objects.create(**validated_data)  # pylint: disable=no-member
-        return amenity
-
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get("name", instance.name)
         instance.save()
         return instance
 
