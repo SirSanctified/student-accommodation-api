@@ -1,3 +1,4 @@
+import RoomsList from "@/components/shared/properties/roomsList";
 import { Button } from "@/components/ui/button";
 import type { Property } from "@/types";
 import axios from "axios";
@@ -23,9 +24,15 @@ const PropertyDetails = async ({
         This page contains all the details of your property {property.data.name}
         .
       </p>
-      <p className="mb-4 max-w-xl text-indigo-950">
-        {JSON.stringify(property.data)}
-      </p>
+      <p className="mb-4 max-w-xl text-indigo-950"></p>
+      {property.data?.rooms?.length ? (
+        <RoomsList
+          rooms={property.data.rooms.map((room) => ({
+            room,
+            property: property.data,
+          }))}
+        />
+      ) : null}
       <Link
         href={`/profile/${params.id}/landlords/properties/${params.propertyId}/update`}
       >
