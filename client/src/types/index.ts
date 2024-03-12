@@ -74,6 +74,12 @@ export type City = {
   url?: string;
 };
 
+export type Amenity = {
+  name: string;
+  id: number;
+  url?: string;
+};
+
 export type PropertyType =
   | "boarding house"
   | "hostel"
@@ -86,7 +92,7 @@ export type Property = {
   id?: string;
   owner: string;
   name: string;
-  city: City;
+  city: string;
   location: string;
   street: string;
   number: string;
