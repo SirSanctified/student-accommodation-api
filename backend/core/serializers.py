@@ -194,7 +194,11 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
     reviews = serializers.HyperlinkedRelatedField(
         view_name="review-detail", read_only=True, many=True
     )
-    amenities = AmenitySerializer(many=True, required=False)
+    amenities = serializers.HyperlinkedRelatedField(
+        view_name="amenity-detail",
+        many=True,
+        queryset=Amenity.objects.all(),  # pylint: disable=no-member
+    )
 
     class Meta:
         """Property serializer."""
@@ -241,7 +245,9 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
         instance.owner = validated_data.get("owner", instance.owner)
 
         if "amenities" in validated_data:
-            instance.amenities.set(validated_data["amenities"])
+            amenities = validated_data.pop("amenities")
+            instance.amenities.clear()
+            instance.amenities.set(amenities)
         instance.updated_at = timezone.now()
         instance.save()
         return instance
