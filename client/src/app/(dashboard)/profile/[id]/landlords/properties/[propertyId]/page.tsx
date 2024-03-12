@@ -2,6 +2,7 @@ import RoomsList from "@/components/shared/properties/roomsList";
 import { Button } from "@/components/ui/button";
 import type { Property } from "@/types";
 import axios from "axios";
+import { EditIcon } from "lucide-react";
 import Link from "next/link";
 
 const PropertyDetails = async ({
@@ -16,7 +17,15 @@ const PropertyDetails = async ({
     },
   );
   return (
-    <main className="w-full">
+    <main className="relative w-full">
+      <Link
+        href={`/profile/${params.id}/landlords/properties/${params.propertyId}/update`}
+        className="absolute right-4 top-4"
+      >
+        <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800">
+          <EditIcon />
+        </Button>
+      </Link>
       <h1 className="mb-2 mt-4 text-3xl font-bold text-indigo-950">
         {property.data.name} - {property.data.city}, {property.data.location}
       </h1>
@@ -37,11 +46,6 @@ const PropertyDetails = async ({
           }))}
         />
       ) : null}
-      <Link
-        href={`/profile/${params.id}/landlords/properties/${params.propertyId}/update`}
-      >
-        <Button variant="outline">Update Property</Button>
-      </Link>
     </main>
   );
 };
