@@ -20,7 +20,7 @@ const PropertyDetails = async ({
     <main className="relative w-full">
       <Link
         href={`/profile/${params.id}/landlords/properties/${params.propertyId}/update`}
-        className="absolute right-4 top-4"
+        className="absolute -top-6 right-4 sm:top-4"
       >
         <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800">
           <EditIcon />
