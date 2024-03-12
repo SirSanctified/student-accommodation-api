@@ -99,6 +99,7 @@ export type Property = {
   property_type: PropertyType;
   amenities?: string[];
   reviews?: [];
+  rooms?: Room[];
   is_published: boolean;
 };
 
@@ -115,9 +116,15 @@ export type Room = {
   display_image: string;
   url?: string;
   images?: [];
+  id?: number;
 };
 
 export type PropertyFormProps = {
   action: string;
   propertyData?: Property;
+};
+
+export type RoomsListProps = {
+  room: Room;
+  property?: Property;
 };
