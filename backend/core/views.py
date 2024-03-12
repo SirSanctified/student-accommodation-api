@@ -214,6 +214,7 @@ class AmenityViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = None
     queryset = Amenity.objects.all()  # pylint: disable=no-member
     serializer_class = AmenitySerializer
 

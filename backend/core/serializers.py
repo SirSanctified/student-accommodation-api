@@ -167,67 +167,21 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class PropertySerializer(serializers.HyperlinkedModelSerializer):
-    """Property serializer."""
-
-    owner = serializers.ReadOnlyField(source="owner.id")
-
-    reviews = serializers.HyperlinkedRelatedField(
-        view_name="review-detail", read_only=True, many=True
-    )
-
-    amenities = serializers.PrimaryKeyRelatedField(
-        queryset=Amenity.objects.all(), many=True  # pylint: disable=no-member
-    )
+class AmenitySerializer(serializers.HyperlinkedModelSerializer):
+    """Amenity serializer."""
 
     class Meta:
-        """Property serializer."""
+        """Amenity serializer."""
 
-        model = Property
-        fields = [
-            "url",
-            "id",
-            "owner",
-            "name",
-            "property_type",
-            "city",
-            "location",
-            "street",
-            "number",
-            "reviews",
-            "amenities",
-            "is_published",
-            "created_at",
-            "updated_at",
-        ]
-        extra_kwargs = {"reviews": {"read_only": True}}
+        model = Amenity
+        fields = ["id", "url", "name"]
 
     def create(self, validated_data):
-        amenities = validated_data.pop("amenities")
-        new_property = Property.objects.create(  # pylint: disable=no-member
-            **validated_data
-        )
-        new_property.amenities.set(amenities)
-        return new_property
+        amenity = Amenity.objects.create(**validated_data)  # pylint: disable=no-member
+        return amenity
 
     def update(self, instance, validated_data):
-        """Update a property instance."""
         instance.name = validated_data.get("name", instance.name)
-        instance.city = validated_data.get("city", instance.city)
-        instance.property_type = validated_data.get(
-            "property_type", instance.property_type
-        )
-        instance.location = validated_data.get("location", instance.location)
-        instance.street = validated_data.get("street", instance.street)
-        instance.number = validated_data.get("number", instance.number)
-        instance.is_published = validated_data.get(
-            "is_published", instance.is_published
-        )
-        instance.owner = validated_data.get("owner", instance.owner)
-
-        if "amenities" in validated_data:
-            instance.amenities.set(validated_data["amenities"])
-        instance.updated_at = timezone.now()
         instance.save()
         return instance
 
@@ -321,21 +275,71 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
-class AmenitySerializer(serializers.HyperlinkedModelSerializer):
-    """Amenity serializer."""
+class PropertySerializer(serializers.HyperlinkedModelSerializer):
+    """Property serializer."""
+
+    owner = serializers.ReadOnlyField(source="owner.id")
+
+    reviews = serializers.HyperlinkedRelatedField(
+        view_name="review-detail", read_only=True, many=True
+    )
+    amenities = serializers.HyperlinkedRelatedField(
+        view_name="amenity-detail",
+        many=True,
+        queryset=Amenity.objects.all(),  # pylint: disable=no-member
+    )
+    rooms = RoomSerializer(many=True, read_only=True)
 
     class Meta:
-        """Amenity serializer."""
+        """Property serializer."""
 
-        model = Amenity
-        fields = ["id", "url", "name"]
+        model = Property
+        fields = [
+            "url",
+            "id",
+            "owner",
+            "name",
+            "property_type",
+            "city",
+            "location",
+            "street",
+            "number",
+            "reviews",
+            "rooms",
+            "amenities",
+            "is_published",
+            "created_at",
+            "updated_at",
+        ]
 
     def create(self, validated_data):
-        amenity = Amenity.objects.create(**validated_data)  # pylint: disable=no-member
-        return amenity
+        amenities = validated_data.pop("amenities")
+        new_property = Property.objects.create(  # pylint: disable=no-member
+            **validated_data
+        )
+        new_property.amenities.set(amenities)
+        return new_property
 
     def update(self, instance, validated_data):
+        """Update a property instance."""
         instance.name = validated_data.get("name", instance.name)
+        instance.city = validated_data.get("city", instance.city)
+        instance.property_type = validated_data.get(
+            "property_type", instance.property_type
+        )
+        instance.location = validated_data.get("location", instance.location)
+        instance.street = validated_data.get("street", instance.street)
+        instance.number = validated_data.get("number", instance.number)
+        instance.is_published = validated_data.get(
+            "is_published", instance.is_published
+        )
+        instance.owner = validated_data.get("owner", instance.owner)
+
+        if "amenities" in validated_data:
+            amenities = validated_data.pop("amenities")
+            instance.amenities.clear()
+            instance.amenities.set(amenities)
+        instance.updated_at = timezone.now()
         instance.save()
         return instance
 
