@@ -93,6 +93,11 @@ const PropertyForm = ({ action, propertyData, userId }: PropertyFormProps) => {
       // do nothing
     });
     if (action === "Update") {
+      setName(propertyData?.name ?? "");
+      setNumber(propertyData?.number ?? "");
+      setLocation(propertyData?.location ?? "");
+      setPropertyType(propertyData?.property_type ?? "boarding house");
+      setStreet(propertyData?.street ?? "");
       const city: ComboboxOption | null =
         cities.find((city) => city.value === propertyData?.city) ?? null;
       const amenityOptions: (ComboboxOption | [])[] =
@@ -114,6 +119,19 @@ const PropertyForm = ({ action, propertyData, userId }: PropertyFormProps) => {
     action,
     propertyData?.city,
     propertyData?.amenities,
+    propertyData?.name,
+    propertyData?.location,
+    propertyData?.number,
+    propertyData?.property_type,
+    propertyData?.street,
+    setName,
+    setNumber,
+    setLocation,
+    setPropertyType,
+    setStreet,
+    setAmenities,
+    setSelectedCity,
+    setSelectedAmenities,
     cities,
     initialAmenities,
   ]);
@@ -180,7 +198,12 @@ const PropertyForm = ({ action, propertyData, userId }: PropertyFormProps) => {
   }
   return (
     <div className="flex w-full flex-col items-start">
-      <Progress color="blue" value={(step / 3) * 100} className="my-4 w-full" />
+      <div className="my-4 flex w-full flex-col gap-1">
+        <p className="text-lg font-semibold text-indigo-950">
+          {step === 1 ? "Location" : step === 2 ? "Property Type" : "Amenities"}
+        </p>
+        <Progress color="blue" value={(step / 3) * 100} className="w-full" />
+      </div>
       <form
         className="flex w-full flex-col space-y-8 md:min-h-[300px]"
         onSubmit={handleSubmit}
@@ -261,6 +284,25 @@ const PropertyForm = ({ action, propertyData, userId }: PropertyFormProps) => {
               }
               isSearchable
               className="z-0 w-full rounded-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderColor: "transparent",
+                  backgroundColor: "#c7d2fe",
+                  borderRadius: "8px",
+                  color: "#1e1b4b",
+                  ":focus": {
+                    borderColor: "#1e1b4b",
+                  },
+                }),
+                container: (base) => ({
+                  ...base,
+                  width: "100%",
+                  ":focus": {
+                    borderColor: "#1e1b4b",
+                  },
+                }),
+              }}
             />
             <Button
               type="submit"
