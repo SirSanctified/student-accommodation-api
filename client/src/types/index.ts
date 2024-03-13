@@ -120,9 +120,9 @@ export type Room = {
   available_beds: number;
   price: number;
   is_available: boolean;
-  display_image: string;
+  display_image: File | string;
   url?: string;
-  images?: File[];
+  images?: File[] | string[];
   id?: number;
 };
 
@@ -130,6 +130,12 @@ export type PropertyFormProps = {
   action: string;
   userId: string;
   propertyData?: Property;
+};
+
+export type RoomFormProps = {
+  property: string;
+  roomData?: Room;
+  action: string;
 };
 
 export type RoomsListProps = {
@@ -159,6 +165,6 @@ export type RoomState = {
   setAvailableBeds: (availableBeds: number) => void;
   setPrice: (price: number) => void;
   setIsAvailable: (isAvailable: boolean) => void;
-  setDisplayImage: (displayImage: string) => void;
-  setImages: (images: File[]) => void;
+  setDisplayImage: (displayImage: string | File) => void;
+  setImages: (images: File[] | string[]) => void;
 };
