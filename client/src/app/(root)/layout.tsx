@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${lato.className}`}>
+      <body className={`${lato.className}`} suppressHydrationWarning>
         <div className="mx-auto min-h-screen max-w-7xl">
           <Navbar />
           <Toaster position="top-right" />
