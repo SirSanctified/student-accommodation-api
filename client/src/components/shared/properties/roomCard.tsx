@@ -11,7 +11,7 @@ const RoomCard = ({ room, property }: { room: Room; property?: Property }) => {
       <Card className="w-full min-w-[92vw] rounded-lg border-none bg-blue-200/75 p-0 text-indigo-950 md:min-w-[350px] md:max-w-sm lg:min-w-[450px]">
         <CardHeader className="p-0">
           <Image
-            src={(room.display_image as string) || "/auth-bg.jpg"}
+            src={"/auth-bg.jpg"}
             alt="Room"
             width={500}
             height={500}
