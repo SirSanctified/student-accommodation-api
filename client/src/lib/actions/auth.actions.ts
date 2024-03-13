@@ -5,7 +5,7 @@ import axios, { type AxiosError } from "axios";
 export const register = async (user: RegisterType): Promise<User> => {
   try {
     const response = await axios.post(
-      `http://server:8000/api/auth/register/`,
+      `http://localhost:8080/api/auth/register/`,
       user,
       {
         withCredentials: true,

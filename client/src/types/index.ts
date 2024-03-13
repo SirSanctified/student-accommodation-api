@@ -1,5 +1,6 @@
 export type RegisterType = {
   email: string;
+  phone: string;
   password: string;
   password2: string;
   first_name: string;
@@ -11,6 +12,12 @@ export type LoginType = {
   password: string;
 };
 
+export type PreferredPaymentMethods =
+  | "ecocash usd"
+  | "bank transfer"
+  | "cash usd"
+  | "other";
+
 export type User = {
   id?: string;
   first_name: string;
@@ -18,6 +25,18 @@ export type User = {
   email: string;
   is_student: boolean;
   is_landlord: boolean;
+};
+
+export type Landlord = {
+  user: User | string;
+  city: string;
+  address: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  ecocash_number: string;
+  preferred_payment_method: PreferredPaymentMethods;
+  is_verified?: boolean;
 };
 
 export type AuthState = {
@@ -55,30 +74,69 @@ export type City = {
   url?: string;
 };
 
+export type Amenity = {
+  name: string;
+  id: number;
+  url?: string;
+};
+
+export type PropertyType =
+  | "boarding house"
+  | "hostel"
+  | "house"
+  | "apartment"
+  | "cottage";
+
 export type Property = {
   url?: string;
-  id: string;
-  landlord: string;
+  id?: string;
   owner: string;
   name: string;
-  images?: string[];
-  description: string;
-  city: City;
+  city: string;
   location: string;
   street: string;
   number: string;
-  total_rooms: number;
-  rooms_single: number;
-  price_single: number;
-  price_shared: string;
-  amenities: string;
-  reviews: string;
+  property_type: PropertyType;
+  amenities?: string[];
+  reviews?: [];
+  rooms?: Room[];
   is_published: boolean;
-  created_at: string;
-  updated_at: string;
+};
+
+export type Room = {
+  property: Property | string;
+  name: string;
+  description: string;
+  room_type: string;
+  num_beds: number;
+  occupied_beds: number;
+  available_beds: number;
+  price: number;
+  is_available: boolean;
+  display_image: string;
+  url?: string;
+  images?: [];
+  id?: number;
 };
 
 export type PropertyFormProps = {
   action: string;
+  userId: string;
   propertyData?: Property;
+};
+
+export type RoomsListProps = {
+  room: Room;
+  property?: Property;
+};
+
+export type PropertyState = {
+  property: Property;
+  setLocation: (location: string) => void;
+  setName: (name: string) => void;
+  setCity: (city: string) => void;
+  setPropertyType: (propertyType: PropertyType) => void;
+  setAmenities: (amenities: string[]) => void;
+  setStreet: (street: string) => void;
+  setNumber: (number: string) => void;
 };
