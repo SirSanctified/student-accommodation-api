@@ -121,6 +121,7 @@ export type Room = {
 
 export type PropertyFormProps = {
   action: string;
+  userId: string;
   propertyData?: Property;
 };
 
