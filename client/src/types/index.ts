@@ -128,3 +128,14 @@ export type RoomsListProps = {
   room: Room;
   property?: Property;
 };
+
+export type PropertyState = {
+  property: Property;
+  setLocation: (location: string) => void;
+  setName: (name: string) => void;
+  setCity: (city: string) => void;
+  setPropertyType: (propertyType: PropertyType) => void;
+  setAmenities: (amenities: string[]) => void;
+  setStreet: (street: string) => void;
+  setNumber: (number: string) => void;
+};
