@@ -87,6 +87,13 @@ export type PropertyType =
   | "apartment"
   | "cottage";
 
+export type RoomType =
+  | "single"
+  | "double"
+  | "triple"
+  | "quadruple"
+  | "dormitory";
+
 export type Property = {
   url?: string;
   id?: string;
@@ -107,7 +114,7 @@ export type Room = {
   property: Property | string;
   name: string;
   description: string;
-  room_type: string;
+  room_type: RoomType;
   num_beds: number;
   occupied_beds: number;
   available_beds: number;
@@ -115,7 +122,7 @@ export type Room = {
   is_available: boolean;
   display_image: string;
   url?: string;
-  images?: [];
+  images?: File[];
   id?: number;
 };
 
@@ -139,4 +146,19 @@ export type PropertyState = {
   setAmenities: (amenities: string[]) => void;
   setStreet: (street: string) => void;
   setNumber: (number: string) => void;
+};
+
+export type RoomState = {
+  room: Room;
+  setName: (name: string) => void;
+  setProperty: (property: string) => void;
+  setDescription: (description: string) => void;
+  setRoomType: (roomType: RoomType) => void;
+  setNumBeds: (numBeds: number) => void;
+  setOccupiedBeds: (occupiedBeds: number) => void;
+  setAvailableBeds: (availableBeds: number) => void;
+  setPrice: (price: number) => void;
+  setIsAvailable: (isAvailable: boolean) => void;
+  setDisplayImage: (displayImage: string) => void;
+  setImages: (images: File[]) => void;
 };

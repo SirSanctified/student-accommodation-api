@@ -1,5 +1,10 @@
 "use client";
-import type { AuthState, PropertyState, User } from "@/types";
+import {
+  type RoomState,
+  type AuthState,
+  type PropertyState,
+  type User,
+} from "@/types";
 import { create } from "zustand";
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -82,4 +87,39 @@ export const usePropertyStore = create<PropertyState>((set) => ({
     set((state) => ({ property: { ...state.property, number } })),
   setAmenities: (amenities) =>
     set((state) => ({ property: { ...state.property, amenities } })),
+}));
+
+export const useRoomState = create<RoomState>((set) => ({
+  room: {
+    name: "",
+    property: "",
+    description: "",
+    room_type: "single",
+    num_beds: 1,
+    occupied_beds: 0,
+    available_beds: 1,
+    price: 0,
+    is_available: true,
+    display_image: "",
+    images: [],
+  },
+  setName: (name) => set((state) => ({ room: { ...state.room, name } })),
+  setProperty: (property) =>
+    set((state) => ({ room: { ...state.room, property } })),
+  setDescription: (description) =>
+    set((state) => ({ room: { ...state.room, description } })),
+  setRoomType: (room_type) =>
+    set((state) => ({ room: { ...state.room, room_type } })),
+  setAvailableBeds: (available_beds) =>
+    set((state) => ({ room: { ...state.room, available_beds } })),
+  setDisplayImage: (display_image) =>
+    set((state) => ({ room: { ...state.room, display_image } })),
+  setImages: (images) => set((state) => ({ room: { ...state.room, images } })),
+  setNumBeds: (num_beds) =>
+    set((state) => ({ room: { ...state.room, num_beds } })),
+  setOccupiedBeds: (occupied_beds) =>
+    set((state) => ({ room: { ...state.room, occupied_beds } })),
+  setPrice: (price) => set((state) => ({ room: { ...state.room, price } })),
+  setIsAvailable: (is_available) =>
+    set((state) => ({ room: { ...state.room, is_available } })),
 }));
