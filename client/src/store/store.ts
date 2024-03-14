@@ -4,7 +4,15 @@ import {
   type AuthState,
   type PropertyState,
   type User,
+  type GetPropertiesState,
+  type AxiosErrorWithDetails,
+  type PropertiesResponse,
+  type Property,
+  type GetRoomsState,
+  type RoomsResponse,
+  type Room,
 } from "@/types";
+import axios from "axios";
 import { create } from "zustand";
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -122,4 +130,224 @@ export const useRoomState = create<RoomState>((set) => ({
   setPrice: (price) => set((state) => ({ room: { ...state.room, price } })),
   setIsAvailable: (is_available) =>
     set((state) => ({ room: { ...state.room, is_available } })),
+}));
+
+export const useGetProperties = create<GetPropertiesState>((set) => ({
+  property: null,
+  properties: [],
+  getProperties: async () => {
+    try {
+      const response = await axios.get<PropertiesResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, properties: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getProperty: async (id) => {
+    try {
+      const response = await axios.get<Property>(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/${id}`,
+      );
+      if (response.status === 200) {
+        if (response.data) {
+          set((state) => ({ ...state, property: response.data }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getPropertiesByCity: async (city) => {
+    try {
+      const response = await axios.get<PropertiesResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/?city=${city}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, properties: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getPropertiesByLandlord: async (landlordId) => {
+    try {
+      const response = await axios.get<PropertiesResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/properties/?landlord=${landlordId}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, properties: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+}));
+
+export const useGetRooms = create<GetRoomsState>((set) => ({
+  rooms: [],
+  room: null,
+  getRooms: async () => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getRoom: async (id) => {
+    try {
+      const response = await axios.get<Room>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/${id}`,
+      );
+      if (response.status === 200) {
+        if (response.data) {
+          set((state) => ({ ...state, room: response.data }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+
+  getRoomsByCity: async (city) => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/?city=${city}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getRoomsByNumberOfBeds: async (numOfBeds) => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/?numOfBeds=${numOfBeds}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getRoomsByOccupiedBeds: async (occupiedBeds) => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/?occupiedBeds=${occupiedBeds}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getRoomsByPrice: async (price) => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/?price=${price}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
+  getRoomsByType: async (type) => {
+    try {
+      const response = await axios.get<RoomsResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/rooms/?type=${type}`,
+      );
+      if (response.status === 200) {
+        if (response.data.results) {
+          set((state) => ({ ...state, rooms: response.data.results }));
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      const errorMessage =
+        (error as AxiosErrorWithDetails)?.response?.data?.detail ??
+        "An unexpected error has occurred";
+      return errorMessage;
+    }
+  },
 }));
