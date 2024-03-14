@@ -22,6 +22,17 @@ import { useRouter } from "next/navigation";
 
 const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
   const [step, setStep] = useState(1);
+  const [displayImageUrl, setDisplayImageUrl] = useState("");
+  const [imagesUrls, setImagesUrls] = useState<string[]>([]);
+  const [errors, setErrors] = useState({
+    name: "",
+    room_type: "",
+    num_beds: "",
+    occupied_beds: "",
+    available_beds: "",
+    price: "",
+    display_image: "",
+  });
 
   const {
     room,
@@ -67,7 +78,7 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
           response.data?.url && setProperty(response.data.url);
         }
       })().catch(() => {
-        // eslint-disable-line
+        toast.error("Something went wrong");
       });
     }
   }, [
@@ -86,14 +97,37 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
     property,
   ]);
 
-  const imagesUrls =
-    room.images?.map((file) => URL.createObjectURL(file as File)) ?? [];
-  const displayImageUrl = room.display_image
-    ? URL.createObjectURL(room.display_image as File)
-    : undefined;
+  useEffect(() => {
+    setDisplayImageUrl(
+      room.display_image ? URL.createObjectURL(room.display_image as File) : "",
+    );
+    setImagesUrls(
+      room.images?.map((file) => URL.createObjectURL(file as File)) ?? [],
+    );
+
+    // Cleanup function to revoke URLs
+    return () => {
+      if (displayImageUrl) {
+        URL.revokeObjectURL(displayImageUrl);
+      }
+      imagesUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room.display_image, room.images]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    Object.entries(room).map(([key, value]) => {
+      if (value === "") {
+        setErrors((prev) => ({ ...prev, [key]: "This field is required" }));
+        return;
+      }
+    });
+    if (errors.display_image) {
+      toast.error("Display Image is required");
+      return;
+    }
     const data = new FormData();
     data.append("property", room.property as string);
     data.append("name", room.name);
@@ -154,14 +188,15 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
               value={room.name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
-              required
-              className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.name && "border border-destructive"}`}
             />
             <Select
               value={room.room_type}
               onValueChange={(value) => setRoomType(value as RoomType)}
             >
-              <SelectTrigger className="w-full bg-indigo-200 text-indigo-950 focus:outline-none">
+              <SelectTrigger
+                className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.room_type && "border border-destructive"}`}
+              >
                 <SelectValue placeholder="Select your room type" />
               </SelectTrigger>
               <SelectContent className="w-full bg-indigo-200 text-indigo-950 focus:outline-none">
@@ -188,8 +223,7 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
               onChange={(e) => setPrice(Number(e.target.value))}
               type="number"
               placeholder="Price"
-              required
-              className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.price && "border border-destructive"}`}
             />
           </div>
         )}
@@ -202,30 +236,27 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
               type="number"
               min={1}
               placeholder="Number of beds"
-              required
-              className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.num_beds && "border border-destructive"}`}
             />
             <Input
               name="occupiedBeds"
               value={room.occupied_beds}
-              onChange={(e) => setOccupiedBeds(parseInt(e.target.value))}
+              onChange={(e) => setOccupiedBeds(Number(e.target.value))}
               type="number"
               min={0}
               max={room.num_beds - room.available_beds}
               placeholder="Occupied beds"
-              required
-              className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.occupied_beds && "border border-destructive"}`}
             />
             <Input
               name="availableBeds"
               value={room.available_beds}
-              onChange={(e) => setAvailableBeds(parseInt(e.target.value))}
+              onChange={(e) => setAvailableBeds(Number(e.target.value))}
               type="number"
               min={0}
               max={room.num_beds - room.occupied_beds}
               placeholder="Available beds"
-              required
-              className="w-full bg-indigo-200 text-indigo-950 focus:outline-none"
+              className={`w-full bg-indigo-200 text-indigo-950 focus:outline-none ${errors.available_beds && "border border-destructive"}`}
             />
           </div>
         )}
