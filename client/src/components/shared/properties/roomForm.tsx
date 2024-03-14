@@ -99,10 +99,16 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
 
   useEffect(() => {
     setDisplayImageUrl(
-      room.display_image ? URL.createObjectURL(room.display_image as File) : "",
+      room.display_image instanceof File
+        ? URL.createObjectURL(room.display_image)
+        : room.display_image,
     );
     setImagesUrls(
-      room.images?.map((file) => URL.createObjectURL(file as File)) ?? [],
+      room.images instanceof Array
+        ? room.images.map((item) =>
+            item instanceof File ? URL.createObjectURL(item) : item,
+          )
+        : [],
     );
 
     // Cleanup function to revoke URLs
@@ -150,9 +156,9 @@ const RoomForm = ({ property, roomData, action }: RoomFormProps) => {
           withCredentials: true,
         });
       }
-      if (action === "Update") {
+      if (action === "Update" && roomData) {
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/rooms/${room.id}/`,
+          `${process.env.NEXT_PUBLIC_API_URL}/rooms/${roomData.id}/`,
           data,
           {
             headers: {

@@ -16,6 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import DeleteConfirmition from "../deleteConfirmition";
 import { useAuthStore } from "@/store/store";
+import UpdateRoomDialog from "@/components/properties/updateRoomDialog";
 
 const RoomCard = ({ room, property }: { room: Room; property?: Property }) => {
   const { user } = useAuthStore();
@@ -76,12 +77,18 @@ const RoomCard = ({ room, property }: { room: Room; property?: Property }) => {
       </Link>
       {user?.id === property?.owner && (
         <div className="absolute right-0 top-0 z-10 hidden h-max  w-max flex-col items-center justify-center gap-4 rounded-lg bg-indigo-300 bg-opacity-50 p-4 px-1 group-hover:flex">
-          <Button
-            variant={"ghost"}
-            className="h-max w-max text-indigo-600 transition-all duration-500 ease-linear hover:scale-110 hover:bg-transparent hover:text-blue-700"
-          >
-            <EditIcon size={24} />
-          </Button>
+          <UpdateRoomDialog
+            trigger={
+              <Button
+                variant={"ghost"}
+                className="h-max w-max text-indigo-600 transition-all duration-500 ease-linear hover:scale-110 hover:bg-transparent hover:text-blue-700"
+              >
+                <EditIcon size={24} />
+              </Button>
+            }
+            roomData={room}
+            property={property?.url ?? ""}
+          />
           <DeleteConfirmition
             item="room"
             trigger={
