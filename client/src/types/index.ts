@@ -1,3 +1,5 @@
+import type { AxiosError, AxiosResponse } from "axios";
+
 export type RegisterType = {
   email: string;
   phone: string;
@@ -168,3 +170,11 @@ export type RoomState = {
   setDisplayImage: (displayImage: string | File) => void;
   setImages: (images: File[] | string[]) => void;
 };
+
+export type ErrorResponseData = {
+  detail?: string;
+};
+
+export interface AxiosErrorWithDetails extends AxiosError {
+  response?: AxiosResponse<ErrorResponse, unknown>;
+}
