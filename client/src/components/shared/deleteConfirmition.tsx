@@ -32,7 +32,6 @@ const DeleteConfirmition = ({
       toast.success("Successfully deleted");
       window.location.reload();
     } catch (error) {
-      alert(JSON.stringify(error));
       const message =
         (error as AxiosErrorWithDetails)?.response?.data?.detail ??
         "Cannot delete, something went wrong";
