@@ -2,9 +2,8 @@
 Serializers for the core app.
 """
 
-from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from accounts.serializers import UserSerializer
 from .models import (
     Student,
     Landlord,
@@ -42,16 +41,8 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
+        depth = 1
         extra_kwargs = {"bookings": {"read_only": True}}
-
-    def create(self, validated_data):
-        user = validated_data.pop("user")
-        student = Student.objects.create(  # pylint: disable=no-member
-            user=user, **validated_data
-        )
-        user.is_student = True
-        user.save()
-        return student
 
     def update(self, instance, validated_data):
         instance.user = validated_data.get("user", instance.user)
@@ -63,6 +54,11 @@ class StudentSerializer(serializers.HyperlinkedModelSerializer):
         instance.level = validated_data.get("level", instance.level)
         instance.save()
         return instance
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["user"] = UserSerializer(instance.user, context=self.context).data
+        return ret
 
 
 class LandlordSerializer(serializers.HyperlinkedModelSerializer):
@@ -90,18 +86,9 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
             "is_verified",
             "status",
         ]
-
-    def create(self, validated_data):
-        user = validated_data.pop("user")
-        landlord = Landlord.objects.create(  # pylint: disable=no-member
-            user=user, **validated_data
-        )
-        user.is_landlord = True
-        user.save()
-        return landlord
+        depth = 1
 
     def update(self, instance, validated_data):
-        instance.user = validated_data.get("user", instance.user)
         instance.city = validated_data.get("city", instance.city)
         instance.preferred_payment_method = validated_data.get(
             "preferred_payment_method", instance.preferred_payment_method
@@ -122,6 +109,11 @@ class LandlordSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
         return instance
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["user"] = UserSerializer(instance.user, context=self.context).data
+        return ret
+
 
 class InstitutionSerializer(serializers.HyperlinkedModelSerializer):
     """Institution serializer."""
@@ -131,6 +123,7 @@ class InstitutionSerializer(serializers.HyperlinkedModelSerializer):
 
         model = Institution
         fields = ["id", "url", "name", "city"]
+        depth = 1
 
     def create(self, validated_data):
         institution = Institution.objects.create(  # pylint: disable=no-member
@@ -165,6 +158,12 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
+        depth = 1
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["owner"] = UserSerializer(instance.owner, context=self.context).data
+        return ret
 
 
 class AmenitySerializer(serializers.HyperlinkedModelSerializer):
@@ -230,65 +229,24 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
+        depth = 1
 
         extra_kwargs = {"reviews": {"read_only": True}}
 
-    def create(self, validated_data):
-        images_data = validated_data.pop("images", [])
-        property_ = validated_data.pop("property")
-        name = validated_data.pop("name")
-        if Room.objects.filter(  # pylint: disable=no-member
-            property=property_, name=name
-        ).exists():
-            raise serializers.ValidationError(
-                "Room with same name already exists in this property"
-            )
-        try:
-            room = Room.objects.create(  # pylint: disable=no-member
-                property=property_, name=name, **validated_data
-            )
-            for image_data in images_data:
-                RoomImage.objects.create(  # pylint: disable=no-member
-                    room=room, **image_data
-                )
-            return room
-        except ValidationError as e:
-            raise serializers.ValidationError(str(e.detail))
-        except Exception as e:  # pylint: disable=broad-except
-            raise e
-
-    def update(self, instance, validated_data):
-        instance.property = validated_data.get("property", instance.property)
-        instance.room_type = validated_data.get("room_type", instance.room_type)
-        instance.name = validated_data.get("name", instance.name)
-        instance.num_beds = validated_data.get("num_beds", instance.num_beds)
-        instance.description = validated_data.get("description", instance.description)
-        instance.price = validated_data.get("price", instance.price)
-        instance.is_available = validated_data.get(
-            "is_available", instance.is_available
-        )
-        instance.display_image = validated_data.get(
-            "display_image", instance.display_image
-        )
-        instance.updated_at = timezone.now()
-        instance.save()
-        return instance
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["property"] = PropertySerializer(
+            instance.property, context=self.context
+        ).data
+        return ret
 
 
 class PropertySerializer(serializers.HyperlinkedModelSerializer):
     """Property serializer."""
 
-    owner = serializers.ReadOnlyField(source="owner.id")
-
     reviews = serializers.HyperlinkedRelatedField(
         view_name="review-detail", read_only=True, many=True
     )
-    amenities = serializers.HyperlinkedRelatedField(
-        view_name="amenity-detail",
-        many=True,
-        queryset=Amenity.objects.all(),  # pylint: disable=no-member
-    )
-    rooms = RoomSerializer(many=True, read_only=True)
 
     class Meta:
         """Property serializer."""
@@ -305,43 +263,23 @@ class PropertySerializer(serializers.HyperlinkedModelSerializer):
             "street",
             "number",
             "reviews",
-            "rooms",
             "amenities",
             "is_published",
             "created_at",
             "updated_at",
         ]
 
-    def create(self, validated_data):
-        amenities = validated_data.pop("amenities")
-        new_property = Property.objects.create(  # pylint: disable=no-member
-            **validated_data
-        )
-        new_property.amenities.set(amenities)
-        return new_property
-
-    def update(self, instance, validated_data):
-        """Update a property instance."""
-        instance.name = validated_data.get("name", instance.name)
-        instance.city = validated_data.get("city", instance.city)
-        instance.property_type = validated_data.get(
-            "property_type", instance.property_type
-        )
-        instance.location = validated_data.get("location", instance.location)
-        instance.street = validated_data.get("street", instance.street)
-        instance.number = validated_data.get("number", instance.number)
-        instance.is_published = validated_data.get(
-            "is_published", instance.is_published
-        )
-        instance.owner = validated_data.get("owner", instance.owner)
-
-        if "amenities" in validated_data:
-            amenities = validated_data.pop("amenities")
-            instance.amenities.clear()
-            instance.amenities.set(amenities)
-        instance.updated_at = timezone.now()
-        instance.save()
-        return instance
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["owner"] = UserSerializer(instance.owner, context=self.context).data
+        ret["reviews"] = ReviewSerializer(
+            instance.reviews, many=True, context=self.context
+        ).data
+        ret["amenities"] = AmenitySerializer(
+            instance.amenities, many=True, context=self.context
+        ).data
+        ret["city"] = CitySerializer(instance.city, context=self.context).data
+        return ret
 
 
 class CitySerializer(serializers.HyperlinkedModelSerializer):
@@ -373,6 +311,11 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["owner"] = UserSerializer(instance.owner, context=self.context).data
+        return ret
 
 
 class LandlordVerificationDocumentSerializer(serializers.ModelSerializer):
@@ -416,3 +359,4 @@ class LandlordVerificationRequestSerializer(serializers.HyperlinkedModelSerializ
             "utility_bill",
             "status",
         ]
+        depth = 1
