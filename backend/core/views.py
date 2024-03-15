@@ -589,6 +589,7 @@ class RoomViewSet(ModelViewSet):
         "property__property_type",
         "property__amenities__name",
         "room_type",
+        "property",
         "is_available",
     ]
     search_fields = [
