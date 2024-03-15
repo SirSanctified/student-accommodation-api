@@ -4,6 +4,8 @@ This module contains the viewsets for the core app.
 
 from django.db import transaction
 from django.forms import ValidationError
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -32,6 +34,7 @@ from .models import (
     Review,
     Booking,
     Room,
+    RoomImage,
     LandlordVerificationRequest,
     LandlordVerificationDocument,
 )
@@ -46,6 +49,42 @@ class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()  # pylint: disable=no-member
     serializer_class = StudentSerializer
 
+    def create(self, request, *args, **kwargs):
+        if request.user.is_student:
+            return Response(
+                {"detail": "You can not create a student account."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        if request.user.is_landlord:
+            return Response(
+                {"detail": "You can not create a student account as a landlord."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            with transaction.atomic():
+                institution = Institution.objects.get(  # pylint: disable=no-member
+                    pk=request.data.pop("institution")
+                )
+                student = Student.objects.create(  # pylint: disable=no-member
+                    user=request.user, institution=institution, **request.data
+                )
+                request.user.is_student = True
+                request.user.save()
+                return Response(
+                    StudentSerializer(student, context={"request": request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
+        except ValidationError:
+            return Response(
+                {"detail": "Institution does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            return Response(
+                e.args[0].detail if hasattr(e.args[0], "detail") else e.args[0],
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 class LandlordViewSet(ModelViewSet):
     """
@@ -55,6 +94,42 @@ class LandlordViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Landlord.objects.all()  # pylint: disable=no-member
     serializer_class = LandlordSerializer
+
+    def create(self, request, *args, **kwargs):
+        if request.user.is_student:
+            return Response(
+                {"detail": "You can not create a landlord account as a student."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        if request.user.is_landlord:
+            return Response(
+                {"detail": "You can not create another landlord account."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            with transaction.atomic():
+                city = City.objects.get(  # pylint: disable=no-member
+                    pk=request.data.pop("city")
+                )
+                landlord = Landlord.objects.create(  # pylint: disable=no-member
+                    user=request.user, city=city, **request.data
+                )
+                request.user.is_landlord = True
+                request.user.save()
+                return Response(
+                    LandlordSerializer(landlord, context={"request": request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
+        except ValidationError as e:
+            if isinstance(e.error_list, list) and e.error_list:
+                error_detail = {
+                    field: errors[0] for field, errors in e.error_list[0].params.items()
+                }
+            else:
+                error_detail = str(e)
+            return Response(
+                {"detail": error_detail}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     def update(self, request, *args, **kwargs):
         try:
@@ -135,7 +210,8 @@ class PropertyViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    filterset_fields = ["city__name", "owner__last_name", "amenities__name"]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["city__name", "owner__id", "amenities__name"]
     search_fields = [
         "name",
         "city__name",
@@ -143,7 +219,9 @@ class PropertyViewSet(ModelViewSet):
         "street",
         "owner__last_name",
     ]
-    queryset = Property.objects.all()  # pylint: disable=no-member
+    queryset = Property.objects.all().order_by(  # pylint: disable=no-member
+        "-created_at"
+    )
     serializer_class = PropertySerializer
 
     def create(self, request, *args, **kwargs):
@@ -161,7 +239,20 @@ class PropertyViewSet(ModelViewSet):
                     {"detail": "Your landlord account is not verified."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            return super().create(request, *args, **kwargs)
+            with transaction.atomic():
+                city = City.objects.get(  # pylint: disable=no-member
+                    pk=request.data.pop("city")
+                )
+                amenities = request.data.pop("amenities")
+                property_ = Property.objects.create(  # pylint: disable=no-member
+                    owner=landlord, city=city, **request.data
+                )
+                property_.amenities.set(amenities)
+                property_.save()
+                return Response(
+                    PropertySerializer(property_, context={"request": request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
         except Landlord.DoesNotExist:  # pylint: disable=no-member
             return Response(
                 {"detail": "Landlord does not exist."},
@@ -178,7 +269,23 @@ class PropertyViewSet(ModelViewSet):
                     {"detail": "Your landlord account is not verified."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            return super().update(request, *args, **kwargs)
+            with transaction.atomic():
+                instance = self.get_object()
+                city = City.objects.get(  # pylint: disable=no-member
+                    pk=request.data.pop("city")
+                )
+                amenities = request.data.pop("amenities")
+                instance.city = city
+                instance.name = request.data.get("name", instance.name)
+                instance.location = request.data.get("location", instance.location)
+                instance.street = request.data.get("street", instance.street)
+                instance.number = request.data.get("number", instance.number)
+                instance.amenities.set(amenities)
+                instance.save()
+                return Response(
+                    PropertySerializer(instance, context={"request": request}).data,
+                    status=status.HTTP_200_OK,
+                )
         except Landlord.DoesNotExist:  # pylint: disable=no-member
             return Response(
                 {"detail": "Landlord does not exist."},
@@ -291,8 +398,14 @@ class BookingViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    queryset = Booking.objects.all()  # pylint: disable=no-member
+    queryset = Booking.objects.all().order_by("-id")  # pylint: disable=no-member
     serializer_class = BookingSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_student:
+            return self.queryset.filter(owner=self.request.user)
+        if self.request.user.is_landlord:
+            return self.queryset.filter(room__property__owner=self.request.user)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -470,25 +583,25 @@ class RoomViewSet(ModelViewSet):
     """
 
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = [
+        "property__city__name",
+        "property__property_type",
+        "property__amenities__name",
+        "room_type",
+        "is_available",
+    ]
     search_fields = [
-        "name",
         "property__city__name",
         "property__name",
+        "property__property_type",
         "property__location",
-        "property__street",
         "property__owner__last_name",
-    ]
-    filterset_fields = [
-        "name",
-        "property__city__name",
-        "num_beds",
-        "price",
-        "available_beds",
-        "is_available",
-        "room_type",
+        "property__owner__first_name",
         "property__amenities__name",
     ]
-    queryset = Room.objects.all()  # pylint: disable=no-member
+
+    queryset = Room.objects.all().order_by("-created_at")  # pylint: disable=no-member
     serializer_class = RoomSerializer
 
     def create(self, request, *args, **kwargs):
@@ -501,11 +614,75 @@ class RoomViewSet(ModelViewSet):
                     {"detail": "Your landlord account is not verified."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            return super().create(request, *args, **kwargs)
+            with transaction.atomic():
+                property_ = Property.objects.get(  # pylint: disable=no-member
+                    id=request.data.pop("property")
+                )
+                if Room.objects.filter(  # pylint: disable=no-member
+                    property=property_, name=request.data["name"]
+                ).exists():
+                    return Response(
+                        {"detail": "Room with this name already exists."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                images = request.data.pop("images")
+                room = Room.objects.create(  # pylint: disable=no-member
+                    property=property_, **request.data
+                )
+                for image in images:
+                    RoomImage.objects.create(  # pylint: disable=no-member
+                        room=room, image=image
+                    )
+                return Response(
+                    RoomSerializer(room, context={"request": request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
         except Landlord.DoesNotExist:  # pylint: disable=no-member
             return Response(
                 {"detail": "Landlord does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
+            )
+        except ValidationError as e:
+            return Response(
+                {"detail": str(e).strip("['").strip("']")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            return Response(
+                e.args[0].detail if hasattr(e.args[0], "detail") else e.args[0],
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.user != instance.property.owner:
+            return Response(
+                {"detail": "You can only update rooms that you own."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            instance.name = request.data.get("name", instance.name)
+            instance.num_beds = request.data.get("num_beds", instance.num_beds)
+            instance.price = request.data.get("price", instance.price)
+            instance.room_type = request.data.get("room_type", instance.room_type)
+            instance.available_beds = request.data.get(
+                "available_beds", instance.available_beds
+            )
+            instance.is_available = request.data.get(
+                "is_available", instance.is_available
+            )
+            instance.occupied_beds = request.data.get(
+                "occupied_beds", instance.occupied_beds
+            )
+            instance.display_image = request.data.get(
+                "display_image", instance.display_image
+            )
+            instance.description = request.data.get("description", instance.description)
+            instance.save()
+            return Response(
+                RoomSerializer(instance, context={"request": request}).data,
+                status=status.HTTP_200_OK,
             )
         except ValidationError as e:
             return Response(
