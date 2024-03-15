@@ -35,9 +35,18 @@ const PropertyDetails = async ({
         in {property.data.street}, {property.data.number} (
         {property.data.rooms?.length} rooms)
       </p>
-      <h2 className="my-4 w-full text-start text-2xl font-bold text-indigo-950">
-        Rooms
-      </h2>
+      <div className="my-4 flex w-full items-center gap-8">
+        <h2 className=" w-full  text-start text-2xl font-bold text-indigo-950">
+          Rooms
+        </h2>
+        <Link
+          href={`/profile/${params.id}/landlords/properties/${params.propertyId}/rooms-add`}
+        >
+          <Button className="flex h-max items-center justify-center gap-1 rounded-sm bg-indigo-400 px-2 py-1 text-sm font-normal">
+            Add room
+          </Button>
+        </Link>
+      </div>
       {property.data?.rooms?.length ? (
         <RoomsList
           rooms={property.data.rooms.map((room) => ({
