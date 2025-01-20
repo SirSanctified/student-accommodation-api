@@ -81,7 +81,7 @@ class StudentViewSet(ModelViewSet):
             )
         except Exception as e:  # pylint: disable=broad-except
             return Response(
-                e.args[0].detail if hasattr(e.args[0], "detail") else e.args[0],
+                {"detail": "An error occurred during student creation."}
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
