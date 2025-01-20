@@ -2,15 +2,18 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type { Room } from "@/types";
 import RoomForm from "../shared/properties/roomForm";
 
-const UpdateRoomDialog = ({
-  trigger,
-  roomData,
-  property,
-}: {
+interface UpdateRoomDialogProps {
   trigger: React.ReactNode;
   roomData: Room;
   property: string;
+}
+
+const UpdateRoomDialog: React.FC<UpdateRoomDialogProps> = ({
+  trigger,
+  roomData,
+  property,
 }) => {
+  const propertyName = property.split("/").at(-1) ?? "";
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -18,7 +21,7 @@ const UpdateRoomDialog = ({
         <RoomForm
           action="Update"
           roomData={roomData}
-          property={property.split("/").at(-1) ?? ""}
+          property={propertyName}
         />
       </DialogContent>
     </Dialog>
