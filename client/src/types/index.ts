@@ -1,3 +1,5 @@
+import type { AxiosError, AxiosResponse } from "axios";
+
 export type RegisterType = {
   email: string;
   phone: string;
@@ -87,10 +89,17 @@ export type PropertyType =
   | "apartment"
   | "cottage";
 
+export type RoomType =
+  | "single"
+  | "double"
+  | "triple"
+  | "quadruple"
+  | "dormitory";
+
 export type Property = {
   url?: string;
   id?: string;
-  owner: string;
+  owner: User | string;
   name: string;
   city: string;
   location: string;
@@ -103,26 +112,77 @@ export type Property = {
   is_published: boolean;
 };
 
+export type GetPropertiesState = {
+  property: Property | null;
+  properties: Property[];
+  getProperties: () => Promise<PropertiesResponse | string | null>;
+  getProperty: (id: string) => Promise<Property | string | null>;
+  getPropertiesByLandlord: (
+    landlordId: string,
+  ) => Promise<PropertiesResponse | string | null>;
+  getPropertiesByCity: (
+    city: string,
+  ) => Promise<PropertiesResponse | string | null>;
+};
+
+export type PropertiesResponse = {
+  count: number;
+  next: number | null;
+  previous: number | null;
+  results: Property[];
+};
+
+export type GetPropertyError = AxiosError<ErrorResponse>;
+
 export type Room = {
   property: Property | string;
   name: string;
   description: string;
-  room_type: string;
+  room_type: RoomType;
   num_beds: number;
   occupied_beds: number;
   available_beds: number;
   price: number;
   is_available: boolean;
-  display_image: string;
+  display_image: File | string;
   url?: string;
-  images?: [];
+  images?: File[] | string[];
   id?: number;
+};
+
+export type RoomsResponse = PropertiesResponse & { results: Room[] };
+
+export type GetRoomsError = AxiosError<ErrorResponse>;
+
+export type GetRoomsState = {
+  rooms: Room[];
+  room: Room | null;
+  getRooms: () => Promise<RoomsResponse | string | null>;
+  getRoom: (id: number) => Promise<Room | string | null>;
+  getRoomsByType: (
+    roomType: RoomType,
+  ) => Promise<RoomsResponse | string | null>;
+  getRoomsByCity: (city: string) => Promise<RoomsResponse | string | null>;
+  getRoomsByNumberOfBeds: (
+    numOfBeds: number,
+  ) => Promise<RoomsResponse | string | null>;
+  getRoomsByPrice: (price: number) => Promise<RoomsResponse | string | null>;
+
+  getRoomsByOccupiedBeds: (
+    occupiedBeds: number,
+  ) => Promise<RoomsResponse | string | null>;
 };
 
 export type PropertyFormProps = {
   action: string;
   userId: string;
   propertyData?: Property;
+};
+
+export type RoomFormProps = {
+  property: string;
+  roomData?: Room;
+  action: string;
 };
 
 export type RoomsListProps = {
@@ -140,3 +200,26 @@ export type PropertyState = {
   setStreet: (street: string) => void;
   setNumber: (number: string) => void;
 };
+
+export type RoomState = {
+  room: Room;
+  setName: (name: string) => void;
+  setProperty: (property: string) => void;
+  setDescription: (description: string) => void;
+  setRoomType: (roomType: RoomType) => void;
+  setNumBeds: (numBeds: number) => void;
+  setOccupiedBeds: (occupiedBeds: number) => void;
+  setAvailableBeds: (availableBeds: number) => void;
+  setPrice: (price: number) => void;
+  setIsAvailable: (isAvailable: boolean) => void;
+  setDisplayImage: (displayImage: string | File) => void;
+  setImages: (images: File[] | string[]) => void;
+};
+
+export type ErrorResponseData = {
+  detail?: string;
+};
+
+export interface AxiosErrorWithDetails extends AxiosError {
+  response?: AxiosResponse<ErrorResponse, unknown>;
+}
