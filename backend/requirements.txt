@@ -17,7 +17,7 @@ coreschema==0.0.4
 coverage==7.4.3
 cryptography==42.0.5
 dj-database-url==2.1.0
-Django==5.0.2
+Django==5.0.11
 django-appconf==1.0.6
 django-celery-email==3.0.0
 django-cors-headers==4.3.1
