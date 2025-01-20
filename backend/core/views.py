@@ -128,7 +128,7 @@ class LandlordViewSet(ModelViewSet):
             else:
                 error_detail = str(e)
             return Response(
-                {"detail": error_detail}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "An error occurred during landlord creation."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     def update(self, request, *args, **kwargs):
